@@ -15,7 +15,7 @@ PACKR is a domain-aware, low-RAM, streaming compression format designed for:
 |------------------------|--------|---------|-------------------|
 | Repetitive telemetry   | 18.6:1 | 38.8:1  | 2.08x better      |
 | Mixed telemetry        | 11.1:1 | 16.3:1  | 1.47x better      |
-| Random telemetry (500) | 18.0:1 | 38.2:1  | 2.13x better      |
+| Random telemetry       | 18.0:1 | 38.2:1  | 2.13x better      |
 
 Note: PACKR is optimized for structured data. Binary files (images, video) should use domain-specific codecs.
 
