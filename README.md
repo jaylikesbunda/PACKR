@@ -1,4 +1,4 @@
-# PACKR
+# PACKR (WIP)
 
 structure-first streaming compression for embedded systems and structured data.
 
