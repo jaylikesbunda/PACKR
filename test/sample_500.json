@@ -1,0 +1,3502 @@
+[
+  {
+    "timestamp": 1706345000,
+    "rssi": -69,
+    "mac": "11:22:33:44:55:66",
+    "channel": 36,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345001,
+    "rssi": -37,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 6,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345002,
+    "rssi": -67,
+    "mac": "AA:BB:CC:DD:EE:03",
+    "channel": 44,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345003,
+    "rssi": -36,
+    "mac": "AA:BB:CC:DD:EE:03",
+    "channel": 1,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345004,
+    "rssi": -65,
+    "mac": "11:22:33:44:55:66",
+    "channel": 11,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345005,
+    "rssi": -60,
+    "mac": "11:22:33:44:55:66",
+    "channel": 11,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345006,
+    "rssi": -47,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 1,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345007,
+    "rssi": -33,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 1,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345008,
+    "rssi": -38,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 40,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345009,
+    "rssi": -51,
+    "mac": "AA:BB:CC:DD:EE:03",
+    "channel": 40,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345010,
+    "rssi": -57,
+    "mac": "AA:BB:CC:DD:EE:03",
+    "channel": 36,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345011,
+    "rssi": -63,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 6,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345012,
+    "rssi": -56,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 1,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345013,
+    "rssi": -72,
+    "mac": "11:22:33:44:55:66",
+    "channel": 40,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345014,
+    "rssi": -61,
+    "mac": "11:22:33:44:55:66",
+    "channel": 11,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345015,
+    "rssi": -46,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 6,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345016,
+    "rssi": -57,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 6,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345017,
+    "rssi": -78,
+    "mac": "AA:BB:CC:DD:EE:03",
+    "channel": 36,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345018,
+    "rssi": -40,
+    "mac": "11:22:33:44:55:66",
+    "channel": 1,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345019,
+    "rssi": -48,
+    "mac": "AA:BB:CC:DD:EE:03",
+    "channel": 6,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345020,
+    "rssi": -41,
+    "mac": "11:22:33:44:55:66",
+    "channel": 6,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345021,
+    "rssi": -69,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 36,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345022,
+    "rssi": -76,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 6,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345023,
+    "rssi": -75,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 36,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345024,
+    "rssi": -33,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 44,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345025,
+    "rssi": -41,
+    "mac": "11:22:33:44:55:66",
+    "channel": 1,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345026,
+    "rssi": -56,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 40,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345027,
+    "rssi": -43,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 36,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345028,
+    "rssi": -31,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 6,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345029,
+    "rssi": -49,
+    "mac": "AA:BB:CC:DD:EE:03",
+    "channel": 11,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345030,
+    "rssi": -53,
+    "mac": "11:22:33:44:55:66",
+    "channel": 40,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345031,
+    "rssi": -75,
+    "mac": "AA:BB:CC:DD:EE:03",
+    "channel": 1,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345032,
+    "rssi": -63,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 11,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345033,
+    "rssi": -52,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 6,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345034,
+    "rssi": -47,
+    "mac": "AA:BB:CC:DD:EE:03",
+    "channel": 40,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345035,
+    "rssi": -32,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 6,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345036,
+    "rssi": -62,
+    "mac": "11:22:33:44:55:66",
+    "channel": 6,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345037,
+    "rssi": -62,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 36,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345038,
+    "rssi": -57,
+    "mac": "11:22:33:44:55:66",
+    "channel": 6,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345039,
+    "rssi": -64,
+    "mac": "AA:BB:CC:DD:EE:03",
+    "channel": 40,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345040,
+    "rssi": -36,
+    "mac": "AA:BB:CC:DD:EE:03",
+    "channel": 11,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345041,
+    "rssi": -38,
+    "mac": "AA:BB:CC:DD:EE:03",
+    "channel": 44,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345042,
+    "rssi": -35,
+    "mac": "AA:BB:CC:DD:EE:03",
+    "channel": 40,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345043,
+    "rssi": -44,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 40,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345044,
+    "rssi": -68,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 6,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345045,
+    "rssi": -70,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 40,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345046,
+    "rssi": -31,
+    "mac": "11:22:33:44:55:66",
+    "channel": 44,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345047,
+    "rssi": -52,
+    "mac": "AA:BB:CC:DD:EE:03",
+    "channel": 1,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345048,
+    "rssi": -46,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 1,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345049,
+    "rssi": -75,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 11,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345050,
+    "rssi": -73,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 44,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345051,
+    "rssi": -68,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 1,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345052,
+    "rssi": -37,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 36,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345053,
+    "rssi": -58,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 40,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345054,
+    "rssi": -39,
+    "mac": "AA:BB:CC:DD:EE:03",
+    "channel": 11,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345055,
+    "rssi": -74,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 44,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345056,
+    "rssi": -54,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 6,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345057,
+    "rssi": -71,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 1,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345058,
+    "rssi": -32,
+    "mac": "11:22:33:44:55:66",
+    "channel": 1,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345059,
+    "rssi": -66,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 6,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345060,
+    "rssi": -58,
+    "mac": "11:22:33:44:55:66",
+    "channel": 36,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345061,
+    "rssi": -31,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 36,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345062,
+    "rssi": -32,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 40,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345063,
+    "rssi": -74,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 40,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345064,
+    "rssi": -53,
+    "mac": "11:22:33:44:55:66",
+    "channel": 40,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345065,
+    "rssi": -72,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 44,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345066,
+    "rssi": -78,
+    "mac": "11:22:33:44:55:66",
+    "channel": 6,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345067,
+    "rssi": -43,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 40,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345068,
+    "rssi": -75,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 11,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345069,
+    "rssi": -68,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 6,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345070,
+    "rssi": -45,
+    "mac": "AA:BB:CC:DD:EE:03",
+    "channel": 44,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345071,
+    "rssi": -33,
+    "mac": "11:22:33:44:55:66",
+    "channel": 1,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345072,
+    "rssi": -63,
+    "mac": "11:22:33:44:55:66",
+    "channel": 44,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345073,
+    "rssi": -70,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 11,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345074,
+    "rssi": -69,
+    "mac": "11:22:33:44:55:66",
+    "channel": 11,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345075,
+    "rssi": -61,
+    "mac": "AA:BB:CC:DD:EE:03",
+    "channel": 40,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345076,
+    "rssi": -46,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 44,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345077,
+    "rssi": -52,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 1,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345078,
+    "rssi": -80,
+    "mac": "AA:BB:CC:DD:EE:03",
+    "channel": 44,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345079,
+    "rssi": -55,
+    "mac": "11:22:33:44:55:66",
+    "channel": 36,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345080,
+    "rssi": -62,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 44,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345081,
+    "rssi": -80,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 1,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345082,
+    "rssi": -78,
+    "mac": "11:22:33:44:55:66",
+    "channel": 1,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345083,
+    "rssi": -77,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 44,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345084,
+    "rssi": -39,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 36,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345085,
+    "rssi": -73,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 6,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345086,
+    "rssi": -79,
+    "mac": "AA:BB:CC:DD:EE:03",
+    "channel": 11,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345087,
+    "rssi": -53,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 6,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345088,
+    "rssi": -42,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 40,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345089,
+    "rssi": -58,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 11,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345090,
+    "rssi": -79,
+    "mac": "11:22:33:44:55:66",
+    "channel": 40,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345091,
+    "rssi": -78,
+    "mac": "11:22:33:44:55:66",
+    "channel": 11,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345092,
+    "rssi": -57,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 6,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345093,
+    "rssi": -71,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 1,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345094,
+    "rssi": -71,
+    "mac": "AA:BB:CC:DD:EE:03",
+    "channel": 40,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345095,
+    "rssi": -33,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 1,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345096,
+    "rssi": -38,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 44,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345097,
+    "rssi": -59,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 40,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345098,
+    "rssi": -44,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 6,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345099,
+    "rssi": -78,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 6,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345100,
+    "rssi": -32,
+    "mac": "AA:BB:CC:DD:EE:03",
+    "channel": 36,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345101,
+    "rssi": -38,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 6,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345102,
+    "rssi": -34,
+    "mac": "AA:BB:CC:DD:EE:03",
+    "channel": 44,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345103,
+    "rssi": -53,
+    "mac": "AA:BB:CC:DD:EE:03",
+    "channel": 1,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345104,
+    "rssi": -58,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 6,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345105,
+    "rssi": -36,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 6,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345106,
+    "rssi": -42,
+    "mac": "11:22:33:44:55:66",
+    "channel": 11,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345107,
+    "rssi": -60,
+    "mac": "11:22:33:44:55:66",
+    "channel": 1,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345108,
+    "rssi": -78,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 36,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345109,
+    "rssi": -58,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 40,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345110,
+    "rssi": -45,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 40,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345111,
+    "rssi": -63,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 1,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345112,
+    "rssi": -46,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 36,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345113,
+    "rssi": -45,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 40,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345114,
+    "rssi": -76,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 40,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345115,
+    "rssi": -63,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 6,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345116,
+    "rssi": -32,
+    "mac": "AA:BB:CC:DD:EE:03",
+    "channel": 36,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345117,
+    "rssi": -66,
+    "mac": "11:22:33:44:55:66",
+    "channel": 6,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345118,
+    "rssi": -62,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 1,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345119,
+    "rssi": -53,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 1,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345120,
+    "rssi": -65,
+    "mac": "11:22:33:44:55:66",
+    "channel": 1,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345121,
+    "rssi": -68,
+    "mac": "AA:BB:CC:DD:EE:03",
+    "channel": 11,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345122,
+    "rssi": -55,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 40,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345123,
+    "rssi": -65,
+    "mac": "11:22:33:44:55:66",
+    "channel": 36,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345124,
+    "rssi": -39,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 1,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345125,
+    "rssi": -74,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 1,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345126,
+    "rssi": -40,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 11,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345127,
+    "rssi": -35,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 1,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345128,
+    "rssi": -58,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 11,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345129,
+    "rssi": -44,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 40,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345130,
+    "rssi": -74,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 1,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345131,
+    "rssi": -53,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 11,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345132,
+    "rssi": -73,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 1,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345133,
+    "rssi": -69,
+    "mac": "11:22:33:44:55:66",
+    "channel": 11,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345134,
+    "rssi": -37,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 36,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345135,
+    "rssi": -30,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 40,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345136,
+    "rssi": -56,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 40,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345137,
+    "rssi": -33,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 1,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345138,
+    "rssi": -66,
+    "mac": "11:22:33:44:55:66",
+    "channel": 11,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345139,
+    "rssi": -67,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 44,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345140,
+    "rssi": -31,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 44,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345141,
+    "rssi": -33,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 36,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345142,
+    "rssi": -70,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 6,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345143,
+    "rssi": -44,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 44,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345144,
+    "rssi": -63,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 40,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345145,
+    "rssi": -38,
+    "mac": "AA:BB:CC:DD:EE:03",
+    "channel": 1,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345146,
+    "rssi": -38,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 11,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345147,
+    "rssi": -38,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 1,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345148,
+    "rssi": -43,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 11,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345149,
+    "rssi": -52,
+    "mac": "11:22:33:44:55:66",
+    "channel": 40,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345150,
+    "rssi": -36,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 44,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345151,
+    "rssi": -71,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 44,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345152,
+    "rssi": -70,
+    "mac": "11:22:33:44:55:66",
+    "channel": 1,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345153,
+    "rssi": -42,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 6,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345154,
+    "rssi": -80,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 11,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345155,
+    "rssi": -78,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 44,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345156,
+    "rssi": -65,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 6,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345157,
+    "rssi": -32,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 44,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345158,
+    "rssi": -65,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 6,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345159,
+    "rssi": -41,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 11,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345160,
+    "rssi": -79,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 6,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345161,
+    "rssi": -64,
+    "mac": "AA:BB:CC:DD:EE:03",
+    "channel": 11,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345162,
+    "rssi": -75,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 44,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345163,
+    "rssi": -44,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 40,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345164,
+    "rssi": -40,
+    "mac": "AA:BB:CC:DD:EE:03",
+    "channel": 36,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345165,
+    "rssi": -55,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 11,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345166,
+    "rssi": -35,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 1,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345167,
+    "rssi": -40,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 11,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345168,
+    "rssi": -79,
+    "mac": "11:22:33:44:55:66",
+    "channel": 6,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345169,
+    "rssi": -38,
+    "mac": "AA:BB:CC:DD:EE:03",
+    "channel": 1,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345170,
+    "rssi": -31,
+    "mac": "11:22:33:44:55:66",
+    "channel": 44,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345171,
+    "rssi": -78,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 36,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345172,
+    "rssi": -72,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 11,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345173,
+    "rssi": -80,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 6,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345174,
+    "rssi": -32,
+    "mac": "11:22:33:44:55:66",
+    "channel": 11,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345175,
+    "rssi": -73,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 11,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345176,
+    "rssi": -77,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 36,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345177,
+    "rssi": -57,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 11,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345178,
+    "rssi": -66,
+    "mac": "AA:BB:CC:DD:EE:03",
+    "channel": 40,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345179,
+    "rssi": -66,
+    "mac": "11:22:33:44:55:66",
+    "channel": 40,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345180,
+    "rssi": -49,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 44,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345181,
+    "rssi": -65,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 1,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345182,
+    "rssi": -30,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 6,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345183,
+    "rssi": -60,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 11,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345184,
+    "rssi": -73,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 40,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345185,
+    "rssi": -77,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 6,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345186,
+    "rssi": -75,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 6,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345187,
+    "rssi": -62,
+    "mac": "AA:BB:CC:DD:EE:03",
+    "channel": 44,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345188,
+    "rssi": -75,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 40,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345189,
+    "rssi": -73,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 36,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345190,
+    "rssi": -51,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 1,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345191,
+    "rssi": -62,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 1,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345192,
+    "rssi": -44,
+    "mac": "11:22:33:44:55:66",
+    "channel": 11,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345193,
+    "rssi": -58,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 36,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345194,
+    "rssi": -72,
+    "mac": "AA:BB:CC:DD:EE:03",
+    "channel": 40,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345195,
+    "rssi": -62,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 44,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345196,
+    "rssi": -51,
+    "mac": "11:22:33:44:55:66",
+    "channel": 44,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345197,
+    "rssi": -33,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 1,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345198,
+    "rssi": -72,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 40,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345199,
+    "rssi": -68,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 44,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345200,
+    "rssi": -74,
+    "mac": "11:22:33:44:55:66",
+    "channel": 1,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345201,
+    "rssi": -43,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 44,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345202,
+    "rssi": -76,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 44,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345203,
+    "rssi": -31,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 40,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345204,
+    "rssi": -74,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 11,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345205,
+    "rssi": -65,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 11,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345206,
+    "rssi": -46,
+    "mac": "11:22:33:44:55:66",
+    "channel": 36,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345207,
+    "rssi": -39,
+    "mac": "AA:BB:CC:DD:EE:03",
+    "channel": 6,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345208,
+    "rssi": -64,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 40,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345209,
+    "rssi": -66,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 36,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345210,
+    "rssi": -56,
+    "mac": "11:22:33:44:55:66",
+    "channel": 6,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345211,
+    "rssi": -44,
+    "mac": "AA:BB:CC:DD:EE:03",
+    "channel": 40,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345212,
+    "rssi": -63,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 6,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345213,
+    "rssi": -71,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 36,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345214,
+    "rssi": -63,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 11,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345215,
+    "rssi": -47,
+    "mac": "AA:BB:CC:DD:EE:03",
+    "channel": 44,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345216,
+    "rssi": -51,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 40,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345217,
+    "rssi": -63,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 36,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345218,
+    "rssi": -32,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 36,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345219,
+    "rssi": -66,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 40,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345220,
+    "rssi": -80,
+    "mac": "AA:BB:CC:DD:EE:03",
+    "channel": 1,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345221,
+    "rssi": -35,
+    "mac": "AA:BB:CC:DD:EE:03",
+    "channel": 36,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345222,
+    "rssi": -74,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 36,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345223,
+    "rssi": -79,
+    "mac": "11:22:33:44:55:66",
+    "channel": 11,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345224,
+    "rssi": -72,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 1,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345225,
+    "rssi": -47,
+    "mac": "11:22:33:44:55:66",
+    "channel": 40,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345226,
+    "rssi": -69,
+    "mac": "AA:BB:CC:DD:EE:03",
+    "channel": 44,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345227,
+    "rssi": -33,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 6,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345228,
+    "rssi": -45,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 40,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345229,
+    "rssi": -67,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 11,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345230,
+    "rssi": -62,
+    "mac": "11:22:33:44:55:66",
+    "channel": 6,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345231,
+    "rssi": -62,
+    "mac": "11:22:33:44:55:66",
+    "channel": 1,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345232,
+    "rssi": -30,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 6,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345233,
+    "rssi": -77,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 36,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345234,
+    "rssi": -64,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 40,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345235,
+    "rssi": -70,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 1,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345236,
+    "rssi": -36,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 6,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345237,
+    "rssi": -73,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 1,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345238,
+    "rssi": -36,
+    "mac": "11:22:33:44:55:66",
+    "channel": 44,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345239,
+    "rssi": -51,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 36,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345240,
+    "rssi": -55,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 11,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345241,
+    "rssi": -63,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 11,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345242,
+    "rssi": -32,
+    "mac": "AA:BB:CC:DD:EE:03",
+    "channel": 44,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345243,
+    "rssi": -36,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 11,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345244,
+    "rssi": -78,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 40,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345245,
+    "rssi": -63,
+    "mac": "AA:BB:CC:DD:EE:03",
+    "channel": 1,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345246,
+    "rssi": -67,
+    "mac": "AA:BB:CC:DD:EE:03",
+    "channel": 1,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345247,
+    "rssi": -68,
+    "mac": "11:22:33:44:55:66",
+    "channel": 1,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345248,
+    "rssi": -59,
+    "mac": "AA:BB:CC:DD:EE:03",
+    "channel": 6,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345249,
+    "rssi": -71,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 6,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345250,
+    "rssi": -61,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 44,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345251,
+    "rssi": -58,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 6,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345252,
+    "rssi": -35,
+    "mac": "11:22:33:44:55:66",
+    "channel": 11,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345253,
+    "rssi": -33,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 6,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345254,
+    "rssi": -70,
+    "mac": "AA:BB:CC:DD:EE:03",
+    "channel": 36,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345255,
+    "rssi": -63,
+    "mac": "AA:BB:CC:DD:EE:03",
+    "channel": 44,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345256,
+    "rssi": -47,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 44,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345257,
+    "rssi": -52,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 40,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345258,
+    "rssi": -53,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 40,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345259,
+    "rssi": -41,
+    "mac": "11:22:33:44:55:66",
+    "channel": 40,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345260,
+    "rssi": -46,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 36,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345261,
+    "rssi": -78,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 44,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345262,
+    "rssi": -35,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 44,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345263,
+    "rssi": -75,
+    "mac": "AA:BB:CC:DD:EE:03",
+    "channel": 6,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345264,
+    "rssi": -62,
+    "mac": "11:22:33:44:55:66",
+    "channel": 36,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345265,
+    "rssi": -31,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 11,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345266,
+    "rssi": -54,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 40,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345267,
+    "rssi": -32,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 44,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345268,
+    "rssi": -57,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 44,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345269,
+    "rssi": -71,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 6,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345270,
+    "rssi": -65,
+    "mac": "AA:BB:CC:DD:EE:03",
+    "channel": 6,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345271,
+    "rssi": -71,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 11,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345272,
+    "rssi": -55,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 6,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345273,
+    "rssi": -78,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 44,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345274,
+    "rssi": -71,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 44,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345275,
+    "rssi": -70,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 40,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345276,
+    "rssi": -80,
+    "mac": "AA:BB:CC:DD:EE:03",
+    "channel": 40,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345277,
+    "rssi": -49,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 44,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345278,
+    "rssi": -40,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 40,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345279,
+    "rssi": -73,
+    "mac": "AA:BB:CC:DD:EE:03",
+    "channel": 1,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345280,
+    "rssi": -60,
+    "mac": "AA:BB:CC:DD:EE:03",
+    "channel": 1,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345281,
+    "rssi": -38,
+    "mac": "11:22:33:44:55:66",
+    "channel": 6,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345282,
+    "rssi": -73,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 1,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345283,
+    "rssi": -59,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 6,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345284,
+    "rssi": -54,
+    "mac": "11:22:33:44:55:66",
+    "channel": 44,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345285,
+    "rssi": -43,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 6,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345286,
+    "rssi": -30,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 44,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345287,
+    "rssi": -70,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 11,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345288,
+    "rssi": -61,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 6,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345289,
+    "rssi": -61,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 40,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345290,
+    "rssi": -36,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 1,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345291,
+    "rssi": -59,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 6,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345292,
+    "rssi": -37,
+    "mac": "11:22:33:44:55:66",
+    "channel": 11,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345293,
+    "rssi": -63,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 40,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345294,
+    "rssi": -49,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 44,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345295,
+    "rssi": -64,
+    "mac": "11:22:33:44:55:66",
+    "channel": 36,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345296,
+    "rssi": -63,
+    "mac": "AA:BB:CC:DD:EE:03",
+    "channel": 11,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345297,
+    "rssi": -58,
+    "mac": "11:22:33:44:55:66",
+    "channel": 6,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345298,
+    "rssi": -54,
+    "mac": "AA:BB:CC:DD:EE:03",
+    "channel": 1,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345299,
+    "rssi": -44,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 40,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345300,
+    "rssi": -48,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 40,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345301,
+    "rssi": -77,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 44,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345302,
+    "rssi": -34,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 40,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345303,
+    "rssi": -58,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 6,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345304,
+    "rssi": -32,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 6,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345305,
+    "rssi": -65,
+    "mac": "11:22:33:44:55:66",
+    "channel": 36,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345306,
+    "rssi": -51,
+    "mac": "AA:BB:CC:DD:EE:03",
+    "channel": 1,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345307,
+    "rssi": -44,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 44,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345308,
+    "rssi": -76,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 44,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345309,
+    "rssi": -70,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 40,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345310,
+    "rssi": -73,
+    "mac": "AA:BB:CC:DD:EE:03",
+    "channel": 1,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345311,
+    "rssi": -78,
+    "mac": "11:22:33:44:55:66",
+    "channel": 40,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345312,
+    "rssi": -48,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 6,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345313,
+    "rssi": -70,
+    "mac": "AA:BB:CC:DD:EE:03",
+    "channel": 36,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345314,
+    "rssi": -71,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 11,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345315,
+    "rssi": -74,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 36,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345316,
+    "rssi": -53,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 40,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345317,
+    "rssi": -64,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 44,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345318,
+    "rssi": -49,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 6,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345319,
+    "rssi": -63,
+    "mac": "AA:BB:CC:DD:EE:03",
+    "channel": 40,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345320,
+    "rssi": -79,
+    "mac": "AA:BB:CC:DD:EE:03",
+    "channel": 44,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345321,
+    "rssi": -71,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 6,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345322,
+    "rssi": -61,
+    "mac": "11:22:33:44:55:66",
+    "channel": 11,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345323,
+    "rssi": -40,
+    "mac": "AA:BB:CC:DD:EE:03",
+    "channel": 36,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345324,
+    "rssi": -51,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 36,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345325,
+    "rssi": -34,
+    "mac": "11:22:33:44:55:66",
+    "channel": 44,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345326,
+    "rssi": -31,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 36,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345327,
+    "rssi": -52,
+    "mac": "11:22:33:44:55:66",
+    "channel": 1,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345328,
+    "rssi": -76,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 40,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345329,
+    "rssi": -48,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 36,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345330,
+    "rssi": -57,
+    "mac": "11:22:33:44:55:66",
+    "channel": 1,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345331,
+    "rssi": -31,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 40,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345332,
+    "rssi": -75,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 11,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345333,
+    "rssi": -47,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 44,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345334,
+    "rssi": -68,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 1,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345335,
+    "rssi": -33,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 11,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345336,
+    "rssi": -42,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 1,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345337,
+    "rssi": -39,
+    "mac": "AA:BB:CC:DD:EE:03",
+    "channel": 44,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345338,
+    "rssi": -69,
+    "mac": "11:22:33:44:55:66",
+    "channel": 40,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345339,
+    "rssi": -58,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 6,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345340,
+    "rssi": -61,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 1,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345341,
+    "rssi": -43,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 1,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345342,
+    "rssi": -44,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 1,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345343,
+    "rssi": -61,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 11,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345344,
+    "rssi": -50,
+    "mac": "11:22:33:44:55:66",
+    "channel": 40,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345345,
+    "rssi": -57,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 6,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345346,
+    "rssi": -45,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 6,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345347,
+    "rssi": -46,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 6,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345348,
+    "rssi": -56,
+    "mac": "11:22:33:44:55:66",
+    "channel": 40,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345349,
+    "rssi": -80,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 40,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345350,
+    "rssi": -66,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 11,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345351,
+    "rssi": -72,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 44,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345352,
+    "rssi": -33,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 6,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345353,
+    "rssi": -53,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 6,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345354,
+    "rssi": -50,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 6,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345355,
+    "rssi": -80,
+    "mac": "11:22:33:44:55:66",
+    "channel": 11,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345356,
+    "rssi": -53,
+    "mac": "11:22:33:44:55:66",
+    "channel": 11,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345357,
+    "rssi": -79,
+    "mac": "AA:BB:CC:DD:EE:03",
+    "channel": 40,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345358,
+    "rssi": -77,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 11,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345359,
+    "rssi": -44,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 11,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345360,
+    "rssi": -68,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 11,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345361,
+    "rssi": -49,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 36,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345362,
+    "rssi": -71,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 36,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345363,
+    "rssi": -65,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 40,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345364,
+    "rssi": -78,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 40,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345365,
+    "rssi": -34,
+    "mac": "AA:BB:CC:DD:EE:03",
+    "channel": 1,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345366,
+    "rssi": -49,
+    "mac": "11:22:33:44:55:66",
+    "channel": 1,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345367,
+    "rssi": -39,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 44,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345368,
+    "rssi": -37,
+    "mac": "AA:BB:CC:DD:EE:03",
+    "channel": 44,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345369,
+    "rssi": -45,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 11,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345370,
+    "rssi": -33,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 40,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345371,
+    "rssi": -39,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 1,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345372,
+    "rssi": -35,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 6,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345373,
+    "rssi": -68,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 11,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345374,
+    "rssi": -55,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 6,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345375,
+    "rssi": -62,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 36,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345376,
+    "rssi": -52,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 11,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345377,
+    "rssi": -79,
+    "mac": "AA:BB:CC:DD:EE:03",
+    "channel": 36,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345378,
+    "rssi": -53,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 6,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345379,
+    "rssi": -67,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 6,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345380,
+    "rssi": -49,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 44,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345381,
+    "rssi": -74,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 6,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345382,
+    "rssi": -32,
+    "mac": "11:22:33:44:55:66",
+    "channel": 36,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345383,
+    "rssi": -36,
+    "mac": "11:22:33:44:55:66",
+    "channel": 1,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345384,
+    "rssi": -32,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 6,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345385,
+    "rssi": -63,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 40,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345386,
+    "rssi": -52,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 36,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345387,
+    "rssi": -55,
+    "mac": "11:22:33:44:55:66",
+    "channel": 1,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345388,
+    "rssi": -40,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 44,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345389,
+    "rssi": -30,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 1,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345390,
+    "rssi": -55,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 44,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345391,
+    "rssi": -51,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 1,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345392,
+    "rssi": -41,
+    "mac": "11:22:33:44:55:66",
+    "channel": 1,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345393,
+    "rssi": -70,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 1,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345394,
+    "rssi": -76,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 36,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345395,
+    "rssi": -62,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 11,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345396,
+    "rssi": -31,
+    "mac": "AA:BB:CC:DD:EE:03",
+    "channel": 1,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345397,
+    "rssi": -39,
+    "mac": "11:22:33:44:55:66",
+    "channel": 36,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345398,
+    "rssi": -77,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 40,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345399,
+    "rssi": -77,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 6,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345400,
+    "rssi": -50,
+    "mac": "AA:BB:CC:DD:EE:03",
+    "channel": 11,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345401,
+    "rssi": -36,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 40,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345402,
+    "rssi": -75,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 40,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345403,
+    "rssi": -77,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 36,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345404,
+    "rssi": -80,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 36,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345405,
+    "rssi": -75,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 6,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345406,
+    "rssi": -36,
+    "mac": "11:22:33:44:55:66",
+    "channel": 36,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345407,
+    "rssi": -77,
+    "mac": "11:22:33:44:55:66",
+    "channel": 11,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345408,
+    "rssi": -40,
+    "mac": "AA:BB:CC:DD:EE:03",
+    "channel": 11,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345409,
+    "rssi": -48,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 40,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345410,
+    "rssi": -63,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 36,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345411,
+    "rssi": -60,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 1,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345412,
+    "rssi": -34,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 6,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345413,
+    "rssi": -41,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 36,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345414,
+    "rssi": -60,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 36,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345415,
+    "rssi": -55,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 11,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345416,
+    "rssi": -41,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 36,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345417,
+    "rssi": -49,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 6,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345418,
+    "rssi": -55,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 11,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345419,
+    "rssi": -74,
+    "mac": "11:22:33:44:55:66",
+    "channel": 1,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345420,
+    "rssi": -38,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 6,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345421,
+    "rssi": -37,
+    "mac": "11:22:33:44:55:66",
+    "channel": 1,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345422,
+    "rssi": -58,
+    "mac": "AA:BB:CC:DD:EE:03",
+    "channel": 36,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345423,
+    "rssi": -49,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 40,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345424,
+    "rssi": -78,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 44,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345425,
+    "rssi": -73,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 6,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345426,
+    "rssi": -50,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 36,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345427,
+    "rssi": -64,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 40,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345428,
+    "rssi": -43,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 11,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345429,
+    "rssi": -46,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 11,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345430,
+    "rssi": -40,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 40,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345431,
+    "rssi": -78,
+    "mac": "11:22:33:44:55:66",
+    "channel": 1,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345432,
+    "rssi": -34,
+    "mac": "11:22:33:44:55:66",
+    "channel": 44,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345433,
+    "rssi": -76,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 36,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345434,
+    "rssi": -34,
+    "mac": "11:22:33:44:55:66",
+    "channel": 1,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345435,
+    "rssi": -50,
+    "mac": "AA:BB:CC:DD:EE:03",
+    "channel": 11,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345436,
+    "rssi": -37,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 36,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345437,
+    "rssi": -35,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 40,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345438,
+    "rssi": -63,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 1,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345439,
+    "rssi": -38,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 11,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345440,
+    "rssi": -30,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 6,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345441,
+    "rssi": -54,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 11,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345442,
+    "rssi": -75,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 6,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345443,
+    "rssi": -66,
+    "mac": "AA:BB:CC:DD:EE:03",
+    "channel": 11,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345444,
+    "rssi": -50,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 40,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345445,
+    "rssi": -47,
+    "mac": "AA:BB:CC:DD:EE:03",
+    "channel": 6,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345446,
+    "rssi": -58,
+    "mac": "AA:BB:CC:DD:EE:03",
+    "channel": 11,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345447,
+    "rssi": -75,
+    "mac": "AA:BB:CC:DD:EE:03",
+    "channel": 6,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345448,
+    "rssi": -79,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 44,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345449,
+    "rssi": -67,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 36,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345450,
+    "rssi": -63,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 36,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345451,
+    "rssi": -68,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 40,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345452,
+    "rssi": -71,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 6,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345453,
+    "rssi": -48,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 11,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345454,
+    "rssi": -69,
+    "mac": "11:22:33:44:55:66",
+    "channel": 40,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345455,
+    "rssi": -45,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 11,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345456,
+    "rssi": -41,
+    "mac": "11:22:33:44:55:66",
+    "channel": 40,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345457,
+    "rssi": -37,
+    "mac": "11:22:33:44:55:66",
+    "channel": 36,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345458,
+    "rssi": -78,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 40,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345459,
+    "rssi": -39,
+    "mac": "AA:BB:CC:DD:EE:03",
+    "channel": 1,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345460,
+    "rssi": -61,
+    "mac": "AA:BB:CC:DD:EE:03",
+    "channel": 44,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345461,
+    "rssi": -37,
+    "mac": "AA:BB:CC:DD:EE:03",
+    "channel": 36,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345462,
+    "rssi": -45,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 11,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345463,
+    "rssi": -77,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 36,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345464,
+    "rssi": -52,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 11,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345465,
+    "rssi": -70,
+    "mac": "11:22:33:44:55:66",
+    "channel": 11,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345466,
+    "rssi": -40,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 6,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345467,
+    "rssi": -72,
+    "mac": "11:22:33:44:55:66",
+    "channel": 40,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345468,
+    "rssi": -40,
+    "mac": "AA:BB:CC:DD:EE:03",
+    "channel": 44,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345469,
+    "rssi": -32,
+    "mac": "11:22:33:44:55:66",
+    "channel": 11,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345470,
+    "rssi": -52,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 40,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345471,
+    "rssi": -73,
+    "mac": "AA:BB:CC:DD:EE:03",
+    "channel": 6,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345472,
+    "rssi": -44,
+    "mac": "11:22:33:44:55:66",
+    "channel": 44,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345473,
+    "rssi": -76,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 11,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345474,
+    "rssi": -78,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 40,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345475,
+    "rssi": -35,
+    "mac": "11:22:33:44:55:66",
+    "channel": 11,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345476,
+    "rssi": -58,
+    "mac": "AA:BB:CC:DD:EE:03",
+    "channel": 1,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345477,
+    "rssi": -41,
+    "mac": "AA:BB:CC:DD:EE:03",
+    "channel": 44,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345478,
+    "rssi": -75,
+    "mac": "11:22:33:44:55:66",
+    "channel": 40,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345479,
+    "rssi": -38,
+    "mac": "11:22:33:44:55:66",
+    "channel": 1,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345480,
+    "rssi": -35,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 1,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345481,
+    "rssi": -53,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 36,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345482,
+    "rssi": -57,
+    "mac": "AA:BB:CC:DD:EE:03",
+    "channel": 6,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345483,
+    "rssi": -60,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 36,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345484,
+    "rssi": -58,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 40,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345485,
+    "rssi": -39,
+    "mac": "AA:BB:CC:DD:EE:03",
+    "channel": 1,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345486,
+    "rssi": -76,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 6,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345487,
+    "rssi": -30,
+    "mac": "11:22:33:44:55:66",
+    "channel": 6,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345488,
+    "rssi": -66,
+    "mac": "AA:BB:CC:DD:EE:01",
+    "channel": 6,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345489,
+    "rssi": -72,
+    "mac": "11:22:33:44:55:66",
+    "channel": 36,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345490,
+    "rssi": -31,
+    "mac": "AA:BB:CC:DD:EE:03",
+    "channel": 40,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345491,
+    "rssi": -56,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 44,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345492,
+    "rssi": -65,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 36,
+    "ssid": "CafeHotspot"
+  },
+  {
+    "timestamp": 1706345493,
+    "rssi": -46,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 6,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345494,
+    "rssi": -48,
+    "mac": "AA:BB:CC:DD:EE:03",
+    "channel": 11,
+    "ssid": "GuestNetwork"
+  },
+  {
+    "timestamp": 1706345495,
+    "rssi": -56,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 11,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345496,
+    "rssi": -40,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 1,
+    "ssid": "HomeNetwork"
+  },
+  {
+    "timestamp": 1706345497,
+    "rssi": -31,
+    "mac": "AA:BB:CC:DD:EE:03",
+    "channel": 44,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345498,
+    "rssi": -70,
+    "mac": "DE:AD:BE:EF:CA:FE",
+    "channel": 36,
+    "ssid": "OfficeWiFi"
+  },
+  {
+    "timestamp": 1706345499,
+    "rssi": -69,
+    "mac": "AA:BB:CC:DD:EE:02",
+    "channel": 1,
+    "ssid": "GuestNetwork"
+  }
+]

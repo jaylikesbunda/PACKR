@@ -1,0 +1,142 @@
+[
+    {
+        "timestamp": 1706345000,
+        "rssi": -45,
+        "mac": "AA:BB:CC:DD:EE:01",
+        "channel": 6,
+        "ssid": "HomeNetwork"
+    },
+    {
+        "timestamp": 1706345001,
+        "rssi": -47,
+        "mac": "AA:BB:CC:DD:EE:01",
+        "channel": 6,
+        "ssid": "HomeNetwork"
+    },
+    {
+        "timestamp": 1706345002,
+        "rssi": -44,
+        "mac": "AA:BB:CC:DD:EE:01",
+        "channel": 6,
+        "ssid": "HomeNetwork"
+    },
+    {
+        "timestamp": 1706345003,
+        "rssi": -46,
+        "mac": "AA:BB:CC:DD:EE:02",
+        "channel": 11,
+        "ssid": "GuestNetwork"
+    },
+    {
+        "timestamp": 1706345004,
+        "rssi": -52,
+        "mac": "AA:BB:CC:DD:EE:02",
+        "channel": 11,
+        "ssid": "GuestNetwork"
+    },
+    {
+        "timestamp": 1706345005,
+        "rssi": -50,
+        "mac": "AA:BB:CC:DD:EE:01",
+        "channel": 6,
+        "ssid": "HomeNetwork"
+    },
+    {
+        "timestamp": 1706345006,
+        "rssi": -48,
+        "mac": "AA:BB:CC:DD:EE:01",
+        "channel": 6,
+        "ssid": "HomeNetwork"
+    },
+    {
+        "timestamp": 1706345007,
+        "rssi": -55,
+        "mac": "AA:BB:CC:DD:EE:03",
+        "channel": 1,
+        "ssid": "OfficeWiFi"
+    },
+    {
+        "timestamp": 1706345008,
+        "rssi": -53,
+        "mac": "AA:BB:CC:DD:EE:03",
+        "channel": 1,
+        "ssid": "OfficeWiFi"
+    },
+    {
+        "timestamp": 1706345009,
+        "rssi": -49,
+        "mac": "AA:BB:CC:DD:EE:01",
+        "channel": 6,
+        "ssid": "HomeNetwork"
+    },
+    {
+        "timestamp": 1706345010,
+        "rssi": -47,
+        "mac": "AA:BB:CC:DD:EE:01",
+        "channel": 6,
+        "ssid": "HomeNetwork"
+    },
+    {
+        "timestamp": 1706345011,
+        "rssi": -51,
+        "mac": "AA:BB:CC:DD:EE:02",
+        "channel": 11,
+        "ssid": "GuestNetwork"
+    },
+    {
+        "timestamp": 1706345012,
+        "rssi": -54,
+        "mac": "AA:BB:CC:DD:EE:03",
+        "channel": 1,
+        "ssid": "OfficeWiFi"
+    },
+    {
+        "timestamp": 1706345013,
+        "rssi": -46,
+        "mac": "AA:BB:CC:DD:EE:01",
+        "channel": 6,
+        "ssid": "HomeNetwork"
+    },
+    {
+        "timestamp": 1706345014,
+        "rssi": -48,
+        "mac": "AA:BB:CC:DD:EE:01",
+        "channel": 6,
+        "ssid": "HomeNetwork"
+    },
+    {
+        "timestamp": 1706345015,
+        "rssi": -50,
+        "mac": "AA:BB:CC:DD:EE:02",
+        "channel": 11,
+        "ssid": "GuestNetwork"
+    },
+    {
+        "timestamp": 1706345016,
+        "rssi": -52,
+        "mac": "AA:BB:CC:DD:EE:03",
+        "channel": 1,
+        "ssid": "OfficeWiFi"
+    },
+    {
+        "timestamp": 1706345017,
+        "rssi": -45,
+        "mac": "AA:BB:CC:DD:EE:01",
+        "channel": 6,
+        "ssid": "HomeNetwork"
+    },
+    {
+        "timestamp": 1706345018,
+        "rssi": -47,
+        "mac": "AA:BB:CC:DD:EE:01",
+        "channel": 6,
+        "ssid": "HomeNetwork"
+    },
+    {
+        "timestamp": 1706345019,
+        "rssi": -49,
+        "mac": "AA:BB:CC:DD:EE:01",
+        "channel": 6,
+        "ssid": "HomeNetwork"
+    }
+]

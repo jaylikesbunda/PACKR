@@ -1,0 +1,212 @@
+[
+    {
+        "timestamp": 1706345000,
+        "rssi": -45,
+        "mac": "AA:BB:CC:DD:EE:01",
+        "channel": 6,
+        "ssid": "HomeNetwork"
+    },
+    {
+        "timestamp": 1706345001,
+        "rssi": -46,
+        "mac": "AA:BB:CC:DD:EE:01",
+        "channel": 6,
+        "ssid": "HomeNetwork"
+    },
+    {
+        "timestamp": 1706345002,
+        "rssi": -45,
+        "mac": "AA:BB:CC:DD:EE:01",
+        "channel": 6,
+        "ssid": "HomeNetwork"
+    },
+    {
+        "timestamp": 1706345003,
+        "rssi": -47,
+        "mac": "AA:BB:CC:DD:EE:01",
+        "channel": 6,
+        "ssid": "HomeNetwork"
+    },
+    {
+        "timestamp": 1706345004,
+        "rssi": -44,
+        "mac": "AA:BB:CC:DD:EE:01",
+        "channel": 6,
+        "ssid": "HomeNetwork"
+    },
+    {
+        "timestamp": 1706345005,
+        "rssi": -45,
+        "mac": "AA:BB:CC:DD:EE:01",
+        "channel": 6,
+        "ssid": "HomeNetwork"
+    },
+    {
+        "timestamp": 1706345006,
+        "rssi": -46,
+        "mac": "AA:BB:CC:DD:EE:01",
+        "channel": 6,
+        "ssid": "HomeNetwork"
+    },
+    {
+        "timestamp": 1706345007,
+        "rssi": -44,
+        "mac": "AA:BB:CC:DD:EE:01",
+        "channel": 6,
+        "ssid": "HomeNetwork"
+    },
+    {
+        "timestamp": 1706345008,
+        "rssi": -45,
+        "mac": "AA:BB:CC:DD:EE:01",
+        "channel": 6,
+        "ssid": "HomeNetwork"
+    },
+    {
+        "timestamp": 1706345009,
+        "rssi": -47,
+        "mac": "AA:BB:CC:DD:EE:01",
+        "channel": 6,
+        "ssid": "HomeNetwork"
+    },
+    {
+        "timestamp": 1706345010,
+        "rssi": -46,
+        "mac": "AA:BB:CC:DD:EE:01",
+        "channel": 6,
+        "ssid": "HomeNetwork"
+    },
+    {
+        "timestamp": 1706345011,
+        "rssi": -45,
+        "mac": "AA:BB:CC:DD:EE:01",
+        "channel": 6,
+        "ssid": "HomeNetwork"
+    },
+    {
+        "timestamp": 1706345012,
+        "rssi": -44,
+        "mac": "AA:BB:CC:DD:EE:01",
+        "channel": 6,
+        "ssid": "HomeNetwork"
+    },
+    {
+        "timestamp": 1706345013,
+        "rssi": -45,
+        "mac": "AA:BB:CC:DD:EE:01",
+        "channel": 6,
+        "ssid": "HomeNetwork"
+    },
+    {
+        "timestamp": 1706345014,
+        "rssi": -46,
+        "mac": "AA:BB:CC:DD:EE:01",
+        "channel": 6,
+        "ssid": "HomeNetwork"
+    },
+    {
+        "timestamp": 1706345015,
+        "rssi": -47,
+        "mac": "AA:BB:CC:DD:EE:01",
+        "channel": 6,
+        "ssid": "HomeNetwork"
+    },
+    {
+        "timestamp": 1706345016,
+        "rssi": -45,
+        "mac": "AA:BB:CC:DD:EE:01",
+        "channel": 6,
+        "ssid": "HomeNetwork"
+    },
+    {
+        "timestamp": 1706345017,
+        "rssi": -44,
+        "mac": "AA:BB:CC:DD:EE:01",
+        "channel": 6,
+        "ssid": "HomeNetwork"
+    },
+    {
+        "timestamp": 1706345018,
+        "rssi": -46,
+        "mac": "AA:BB:CC:DD:EE:01",
+        "channel": 6,
+        "ssid": "HomeNetwork"
+    },
+    {
+        "timestamp": 1706345019,
+        "rssi": -45,
+        "mac": "AA:BB:CC:DD:EE:01",
+        "channel": 6,
+        "ssid": "HomeNetwork"
+    },
+    {
+        "timestamp": 1706345020,
+        "rssi": -47,
+        "mac": "AA:BB:CC:DD:EE:01",
+        "channel": 6,
+        "ssid": "HomeNetwork"
+    },
+    {
+        "timestamp": 1706345021,
+        "rssi": -45,
+        "mac": "AA:BB:CC:DD:EE:01",
+        "channel": 6,
+        "ssid": "HomeNetwork"
+    },
+    {
+        "timestamp": 1706345022,
+        "rssi": -44,
+        "mac": "AA:BB:CC:DD:EE:01",
+        "channel": 6,
+        "ssid": "HomeNetwork"
+    },
+    {
+        "timestamp": 1706345023,
+        "rssi": -46,
+        "mac": "AA:BB:CC:DD:EE:01",
+        "channel": 6,
+        "ssid": "HomeNetwork"
+    },
+    {
+        "timestamp": 1706345024,
+        "rssi": -45,
+        "mac": "AA:BB:CC:DD:EE:01",
+        "channel": 6,
+        "ssid": "HomeNetwork"
+    },
+    {
+        "timestamp": 1706345025,
+        "rssi": -47,
+        "mac": "AA:BB:CC:DD:EE:01",
+        "channel": 6,
+        "ssid": "HomeNetwork"
+    },
+    {
+        "timestamp": 1706345026,
+        "rssi": -44,
+        "mac": "AA:BB:CC:DD:EE:01",
+        "channel": 6,
+        "ssid": "HomeNetwork"
+    },
+    {
+        "timestamp": 1706345027,
+        "rssi": -45,
+        "mac": "AA:BB:CC:DD:EE:01",
+        "channel": 6,
+        "ssid": "HomeNetwork"
+    },
+    {
+        "timestamp": 1706345028,
+        "rssi": -46,
+        "mac": "AA:BB:CC:DD:EE:01",
+        "channel": 6,
+        "ssid": "HomeNetwork"
+    },
+    {
+        "timestamp": 1706345029,
+        "rssi": -45,
+        "mac": "AA:BB:CC:DD:EE:01",
+        "channel": 6,
+        "ssid": "HomeNetwork"
+    }
+]
