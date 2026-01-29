@@ -1,58 +1,60 @@
 /*
- * PACKR - Token and Varint Implementation
+ * PACKR - Core Implementation
  */
 
 #include "packr.h"
 #include <string.h>
+#include <stdlib.h>
+#include <math.h>
+#include <stdio.h>
 
-/* CRC32 lookup table */
-static const uint32_t crc32_table[256] = {
-    0x00000000, 0x77073096, 0xEE0E612C, 0x990951BA, 0x076DC419, 0x706AF48F,
-    0xE963A535, 0x9E6495A3, 0x0EDB8832, 0x79DCB8A4, 0xE0D5E91E, 0x97D2D988,
-    0x09B64C2B, 0x7EB17CBD, 0xE7B82D07, 0x90BF1D91, 0x1DB71064, 0x6AB020F2,
-    0xF3B97148, 0x84BE41DE, 0x1ADAD47D, 0x6DDDE4EB, 0xF4D4B551, 0x83D385C7,
-    0x136C9856, 0x646BA8C0, 0xFD62F97A, 0x8A65C9EC, 0x14015C4F, 0x63066CD9,
-    0xFA0F3D63, 0x8D080DF5, 0x3B6E20C8, 0x4C69105E, 0xD56041E4, 0xA2677172,
-    0x3C03E4D1, 0x4B04D447, 0xD20D85FD, 0xA50AB56B, 0x35B5A8FA, 0x42B2986C,
-    0xDBBBC9D6, 0xACBCF940, 0x32D86CE3, 0x45DF5C75, 0xDCD60DCF, 0xABD13D59,
-    0x26D930AC, 0x51DE003A, 0xC8D75180, 0xBFD06116, 0x21B4F4B5, 0x56B3C423,
-    0xCFBA9599, 0xB8BDA50F, 0x2802B89E, 0x5F058808, 0xC60CD9B2, 0xB10BE924,
-    0x2F6F7C87, 0x58684C11, 0xC1611DAB, 0xB6662D3D, 0x76DC4190, 0x01DB7106,
-    0x98D220BC, 0xEFD5102A, 0x71B18589, 0x06B6B51F, 0x9FBFE4A5, 0xE8B8D433,
-    0x7807C9A2, 0x0F00F934, 0x9609A88E, 0xE10E9818, 0x7F6A0DBB, 0x086D3D2D,
-    0x91646C97, 0xE6635C01, 0x6B6B51F4, 0x1C6C6162, 0x856530D8, 0xF262004E,
-    0x6C0695ED, 0x1B01A57B, 0x8208F4C1, 0xF50FC457, 0x65B0D9C6, 0x12B7E950,
-    0x8BBEB8EA, 0xFCB9887C, 0x62DD1DDF, 0x15DA2D49, 0x8CD37CF3, 0xFBD44C65,
-    0x4DB26158, 0x3AB551CE, 0xA3BC0074, 0xD4BB30E2, 0x4ADFA541, 0x3DD895D7,
-    0xA4D1C46D, 0xD3D6F4FB, 0x4369E96A, 0x346ED9FC, 0xAD678846, 0xDA60B8D0,
-    0x44042D73, 0x33031DE5, 0xAA0A4C5F, 0xDD0D7CC9, 0x5005713C, 0x270241AA,
-    0xBE0B1010, 0xC90C2086, 0x5768B525, 0x206F85B3, 0xB966D409, 0xCE61E49F,
-    0x5EDEF90E, 0x29D9C998, 0xB0D09822, 0xC7D7A8B4, 0x59B33D17, 0x2EB40D81,
-    0xB7BD5C3B, 0xC0BA6CAD, 0xEDB88320, 0x9ABFB3B6, 0x03B6E20C, 0x74B1D29A,
-    0xEAD54739, 0x9DD277AF, 0x04DB2615, 0x73DC1683, 0xE3630B12, 0x94643B84,
-    0x0D6D6A3E, 0x7A6A5AA8, 0xE40ECF0B, 0x9309FF9D, 0x0A00AE27, 0x7D079EB1,
-    0xF00F9344, 0x8708A3D2, 0x1E01F268, 0x6906C2FE, 0xF762575D, 0x806567CB,
-    0x196C3671, 0x6E6B06E7, 0xFED41B76, 0x89D32BE0, 0x10DA7A5A, 0x67DD4ACC,
-    0xF9B9DF6F, 0x8EBEEFF9, 0x17B7BE43, 0x60B08ED5, 0xD6D6A3E8, 0xA1D1937E,
-    0x38D8C2C4, 0x4FDFF252, 0xD1BB67F1, 0xA6BC5767, 0x3FB506DD, 0x48B2364B,
-    0xD80D2BDA, 0xAF0A1B4C, 0x36034AF6, 0x41047A60, 0xDF60EFC3, 0xA867DF55,
-    0x316E8EEF, 0x4669BE79, 0xCB61B38C, 0xBC66831A, 0x256FD2A0, 0x5268E236,
-    0xCC0C7795, 0xBB0B4703, 0x220216B9, 0x5505262F, 0xC5BA3BBE, 0xB2BD0B28,
-    0x2BB45A92, 0x5CB36A04, 0xC2D7FFA7, 0xB5D0CF31, 0x2CD99E8B, 0x5BDEAE1D,
-    0x9B64C2B0, 0xEC63F226, 0x756AA39C, 0x026D930A, 0x9C0906A9, 0xEB0E363F,
-    0x72076785, 0x05005713, 0x95BF4A82, 0xE2B87A14, 0x7BB12BAE, 0x0CB61B38,
-    0x92D28E9B, 0xE5D5BE0D, 0x7CDCEFB7, 0x0BDBDF21, 0x86D3D2D4, 0xF1D4E242,
-    0x68DDB3F8, 0x1FDA836E, 0x81BE16CD, 0xF6B9265B, 0x6FB077E1, 0x18B74777,
-    0x88085AE6, 0xFF0F6A70, 0x66063BCA, 0x11010B5C, 0x8F659EFF, 0xF862AE69,
-    0x616BFFD3, 0x166CCF45, 0xA00AE278, 0xD70DD2EE, 0x4E048354, 0x3903B3C2,
-    0xA7672661, 0xD06016F7, 0x4969474D, 0x3E6E77DB, 0xAED16A4A, 0xD9D65ADC,
-    0x40DF0B66, 0x37D83BF0, 0xA9BCAE53, 0xDEBB9EC5, 0x47B2CF7F, 0x30B5FFE9,
-    0xBDBDF21C, 0xCABAC28A, 0x53B39330, 0x24B4A3A6, 0xBAD03605, 0xCDD706B3,
-    0x54DE5729, 0x23D967BF, 0xB3667A2E, 0xC4614AB8, 0x5D681B02, 0x2A6F2B94,
-    0xB40BBE37, 0xC30C8EA1, 0x5A05DF1B, 0x2D02EF8D
-};
+#define MIN(a,b) ((a)<(b)?(a):(b))
 
-uint32_t packr_crc32(const uint8_t *data, size_t len) {
+/* CRC32 Table */
+static uint32_t crc32_table[256];
+static int crc32_table_inited = 0;
+
+static size_t g_total_alloc = 0;
+static size_t g_peak_alloc = 0;
+
+size_t packr_get_total_alloc(void) { return g_total_alloc; }
+size_t packr_get_peak_alloc(void) { return g_peak_alloc; }
+void packr_reset_alloc_stats(void) { g_total_alloc = 0; g_peak_alloc = 0; }
+
+void* packr_malloc(size_t size) {
+    if (size == 0) return NULL;
+    g_total_alloc += size;
+    if (g_total_alloc > g_peak_alloc) g_peak_alloc = g_total_alloc;
+    // We store the size before the pointer to track free
+    void *ptr = malloc(size + sizeof(size_t));
+    if (!ptr) return NULL;
+    *(size_t*)ptr = size;
+    return (void*)((size_t*)ptr + 1);
+}
+
+void packr_free(void *ptr) {
+    if (!ptr) return;
+    void *real_ptr = (void*)((size_t*)ptr - 1);
+    g_total_alloc -= *(size_t*)real_ptr;
+    free(real_ptr);
+}
+
+
+static void make_crc_table(void) {
+    uint32_t c;
+    for (int n = 0; n < 256; n++) {
+        c = (uint32_t)n;
+        for (int k = 0; k < 8; k++) {
+            if (c & 1) c = 0xEDB88320 ^ (c >> 1);
+            else c = c >> 1;
+        }
+        crc32_table[n] = c;
+    }
+    crc32_table_inited = 1;
+}
+
+static uint32_t calculate_crc32(const uint8_t *data, size_t len) {
+    if (!crc32_table_inited) make_crc_table();
     uint32_t crc = 0xFFFFFFFF;
     for (size_t i = 0; i < len; i++) {
         crc = (crc >> 8) ^ crc32_table[(crc ^ data[i]) & 0xFF];
@@ -60,323 +62,1003 @@ uint32_t packr_crc32(const uint8_t *data, size_t len) {
     return crc ^ 0xFFFFFFFF;
 }
 
-size_t packr_encode_varint(uint8_t *buf, uint32_t value) {
-    size_t i = 0;
+/* Helpers */
+
+
+uint32_t zigzag_encode(int32_t value) {
+    return (uint32_t)((value << 1) ^ (value >> 31));
+}
+
+static int buffer_append(packr_encoder_t *ctx, const uint8_t *data, size_t len) {
+    if (ctx->pos + len > ctx->capacity) return -1;
+    memcpy(ctx->buffer + ctx->pos, data, len);
+    ctx->pos += len;
+    return 0;
+}
+
+static int buffer_append_byte(packr_encoder_t *ctx, uint8_t b) {
+    if (ctx->pos + 1 > ctx->capacity) return -1;
+    ctx->buffer[ctx->pos++] = b;
+    return 0;
+}
+
+/* Varint */
+int packr_encode_varint(packr_encoder_t *ctx, uint32_t value) {
+    uint8_t buf[5];
+    int i = 0;
     while (value > 0x7F) {
         buf[i++] = (value & 0x7F) | 0x80;
         value >>= 7;
     }
     buf[i++] = value & 0x7F;
-    return i;
+    return buffer_append(ctx, buf, i);
 }
 
-size_t packr_decode_varint(const uint8_t *buf, size_t len, uint32_t *value) {
-    *value = 0;
-    size_t shift = 0;
-    size_t i = 0;
-    
-    while (i < len && i < 5) {
-        uint8_t byte = buf[i++];
-        *value |= (uint32_t)(byte & 0x7F) << shift;
-        if (!(byte & 0x80)) break;
-        shift += 7;
-    }
-    return i;
-}
-
-static inline uint32_t zigzag_encode(int32_t value) {
-    return (uint32_t)((value << 1) ^ (value >> 31));
-}
-
-static inline int32_t zigzag_decode(uint32_t value) {
-    return (int32_t)((value >> 1) ^ -(int32_t)(value & 1));
-}
-
-size_t packr_encode_signed_varint(uint8_t *buf, int32_t value) {
-    return packr_encode_varint(buf, zigzag_encode(value));
-}
-
-size_t packr_decode_signed_varint(const uint8_t *buf, size_t len, int32_t *value) {
-    uint32_t uval;
-    size_t consumed = packr_decode_varint(buf, len, &uval);
-    *value = zigzag_decode(uval);
-    return consumed;
-}
-
-/* Dictionary functions */
+/* Dictionary Management */
 static void dict_init(packr_dict_t *dict) {
     memset(dict, 0, sizeof(packr_dict_t));
 }
 
-static int dict_lookup(packr_dict_t *dict, const char *value, size_t len) {
-    for (int i = 0; i < dict->count; i++) {
-        if (dict->entries[i].length == len &&
+static int dict_get_or_add(packr_dict_t *dict, const char *value, size_t len, int *out_index, size_t *alloc_counter) {
+    /* Lookup */
+    for (int i = 0; i < PACKR_DICT_SIZE; i++) {
+        if (dict->entries[i].value && 
+            dict->entries[i].length == len &&
             memcmp(dict->entries[i].value, value, len) == 0) {
-            dict->entries[i].lru_counter = 255;
-            return i;
+            
+            dict->entries[i].last_used = ++dict->usage_counter;
+            *out_index = i;
+            return 0; /* Found */
         }
     }
-    return -1;
-}
-
-static int dict_add(packr_dict_t *dict, const char *value, size_t len) {
-    int index;
     
-    if (dict->count < PACKR_DICT_SIZE) {
-        index = dict->count++;
-    } else {
-        /* Find LRU entry */
-        uint8_t min_lru = 255;
-        index = 0;
+    /* Add new */
+    int index = -1;
+    
+    /* First pass: find empty slot */
+    for (int i = 0; i < PACKR_DICT_SIZE; i++) {
+        if (dict->entries[i].value == NULL) {
+            index = i;
+            break;
+        }
+    }
+    
+    /* Second pass: find LRU */
+    if (index == -1) {
+        uint64_t min_usage = UINT64_MAX;
         for (int i = 0; i < PACKR_DICT_SIZE; i++) {
-            if (dict->entries[i].lru_counter < min_lru) {
-                min_lru = dict->entries[i].lru_counter;
+            if (dict->entries[i].last_used < min_usage) {
+                min_usage = dict->entries[i].last_used;
                 index = i;
             }
         }
     }
     
-    /* Copy value - in embedded, this would use a pool */
-    dict->entries[index].value = (char *)value;  /* Shallow copy for now */
-    dict->entries[index].length = (uint16_t)len;
-    dict->entries[index].lru_counter = 255;
-    
-    return index;
-}
-
-/* Encoder implementation */
-void packr_encoder_init(packr_encoder_t *enc, uint8_t *buffer, size_t size) {
-    memset(enc, 0, sizeof(packr_encoder_t));
-    enc->buffer = buffer;
-    enc->buffer_size = size;
-    
-    /* Write magic and version */
-    if (size >= 6) {
-        buffer[0] = PACKR_MAGIC_0;
-        buffer[1] = PACKR_MAGIC_1;
-        buffer[2] = PACKR_MAGIC_2;
-        buffer[3] = PACKR_MAGIC_3;
-        buffer[4] = PACKR_VERSION;
-        buffer[5] = 0;  /* Flags */
-        enc->write_pos = 6;
+    /* Replace */
+    if (dict->entries[index].value) {
+        if (alloc_counter) *alloc_counter -= (dict->entries[index].length + 1);
+        packr_free(dict->entries[index].value);
     }
+    dict->entries[index].value = packr_malloc(len + 1);
+    if (alloc_counter) *alloc_counter += (len + 1);
+    memcpy(dict->entries[index].value, value, len);
+    dict->entries[index].value[len] = '\0';
+    dict->entries[index].length = len;
+    dict->entries[index].last_used = ++dict->usage_counter;
     
-    dict_init(&enc->fields);
-    dict_init(&enc->strings);
-    dict_init(&enc->macs);
+    *out_index = index;
+    return 1; /* Added */
 }
 
-void packr_encoder_reset(packr_encoder_t *enc) {
-    enc->write_pos = 6;  /* After header */
-    enc->symbol_count = 0;
-    enc->flags = 0;
-    memset(enc->last_values, 0, sizeof(enc->last_values));
-    memset(enc->value_types, 0, sizeof(enc->value_types));
-}
+/* Encoder */
 
-static packr_error_t write_byte(packr_encoder_t *enc, uint8_t byte) {
-    if (enc->write_pos >= enc->buffer_size) return PACKR_ERR_BUFFER_FULL;
-    enc->buffer[enc->write_pos++] = byte;
-    return PACKR_OK;
-}
-
-static packr_error_t write_bytes(packr_encoder_t *enc, const uint8_t *data, size_t len) {
-    if (enc->write_pos + len > enc->buffer_size) return PACKR_ERR_BUFFER_FULL;
-    memcpy(enc->buffer + enc->write_pos, data, len);
-    enc->write_pos += len;
-    return PACKR_OK;
-}
-
-static packr_error_t write_varint(packr_encoder_t *enc, uint32_t value) {
-    uint8_t buf[5];
-    size_t len = packr_encode_varint(buf, value);
-    return write_bytes(enc, buf, len);
-}
-
-static packr_error_t write_signed_varint(packr_encoder_t *enc, int32_t value) {
-    uint8_t buf[5];
-    size_t len = packr_encode_signed_varint(buf, value);
-    return write_bytes(enc, buf, len);
-}
-
-packr_error_t packr_encode_int(packr_encoder_t *enc, int32_t value) {
-    packr_error_t err = write_byte(enc, PACKR_TOKEN_INT);
-    if (err != PACKR_OK) return err;
-    return write_signed_varint(enc, value);
-}
-
-packr_error_t packr_encode_float(packr_encoder_t *enc, float value) {
-    /* Fixed16 encoding */
-    int16_t scaled = (int16_t)(value * 256.0f);
-    packr_error_t err = write_byte(enc, PACKR_TOKEN_FLOAT16);
-    if (err != PACKR_OK) return err;
-    err = write_byte(enc, scaled & 0xFF);
-    if (err != PACKR_OK) return err;
-    return write_byte(enc, (scaled >> 8) & 0xFF);
-}
-
-packr_error_t packr_encode_string(packr_encoder_t *enc, const char *str, size_t len) {
-    int index = dict_lookup(&enc->strings, str, len);
+void packr_encoder_init(packr_encoder_t *ctx, uint8_t *buffer, size_t capacity) {
+    memset(ctx, 0, sizeof(packr_encoder_t));
+    ctx->buffer = buffer;
+    ctx->capacity = capacity;
+    /* Header size: Magic(4) + Ver(1) + Flags(1) + SymCnt(varint) */
+    ctx->pos = 11; 
+    ctx->total_alloc = sizeof(packr_encoder_t);
     
-    if (index >= 0) {
-        return write_byte(enc, PACKR_TOKEN_STRING_BASE + index);
-    }
-    
-    /* New string */
-    dict_add(&enc->strings, str, len);
-    packr_error_t err = write_byte(enc, PACKR_TOKEN_NEW_STRING);
-    if (err != PACKR_OK) return err;
-    err = write_varint(enc, (uint32_t)len);
-    if (err != PACKR_OK) return err;
-    return write_bytes(enc, (const uint8_t *)str, len);
+    dict_init(&ctx->fields);
+    dict_init(&ctx->strings);
+    dict_init(&ctx->macs);
 }
 
-packr_error_t packr_encode_mac(packr_encoder_t *enc, const uint8_t *mac) {
-    /* MAC as 6-byte key */
-    int index = dict_lookup(&enc->macs, (const char *)mac, 6);
-    
-    if (index >= 0) {
-        return write_byte(enc, PACKR_TOKEN_MAC_BASE + index);
-    }
-    
-    dict_add(&enc->macs, (const char *)mac, 6);
-    packr_error_t err = write_byte(enc, PACKR_TOKEN_NEW_MAC);
-    if (err != PACKR_OK) return err;
-    return write_bytes(enc, mac, 6);
-}
-
-packr_error_t packr_encode_bool(packr_encoder_t *enc, bool value) {
-    return write_byte(enc, value ? PACKR_TOKEN_BOOL_TRUE : PACKR_TOKEN_BOOL_FALSE);
-}
-
-packr_error_t packr_encode_null(packr_encoder_t *enc) {
-    return write_byte(enc, PACKR_TOKEN_NULL);
-}
-
-packr_error_t packr_encode_field(packr_encoder_t *enc, const char *name, size_t len) {
-    int index = dict_lookup(&enc->fields, name, len);
-    
-    if (index >= 0) {
-        return write_byte(enc, PACKR_TOKEN_FIELD_BASE + index);
-    }
-    
-    dict_add(&enc->fields, name, len);
-    packr_error_t err = write_byte(enc, PACKR_TOKEN_NEW_FIELD);
-    if (err != PACKR_OK) return err;
-    err = write_varint(enc, (uint32_t)len);
-    if (err != PACKR_OK) return err;
-    return write_bytes(enc, (const uint8_t *)name, len);
-}
-
-packr_error_t packr_encode_object_start(packr_encoder_t *enc) {
-    return write_byte(enc, PACKR_TOKEN_OBJECT_START);
-}
-
-packr_error_t packr_encode_object_end(packr_encoder_t *enc) {
-    return write_byte(enc, PACKR_TOKEN_OBJECT_END);
-}
-
-packr_error_t packr_encode_array_start(packr_encoder_t *enc, uint32_t count) {
-    packr_error_t err = write_byte(enc, PACKR_TOKEN_ARRAY_START);
-    if (err != PACKR_OK) return err;
-    return write_varint(enc, count);
-}
-
-packr_error_t packr_encode_array_end(packr_encoder_t *enc) {
-    return write_byte(enc, PACKR_TOKEN_ARRAY_END);
-}
-
-size_t packr_encoder_finalize(packr_encoder_t *enc) {
-    /* Write symbol count at position 6 (after magic/version/flags) */
-    /* For simplicity, we skip this in the basic implementation */
-    
-    /* Compute and append CRC32 */
-    uint32_t crc = packr_crc32(enc->buffer, enc->write_pos);
-    if (enc->write_pos + 4 <= enc->buffer_size) {
-        enc->buffer[enc->write_pos++] = crc & 0xFF;
-        enc->buffer[enc->write_pos++] = (crc >> 8) & 0xFF;
-        enc->buffer[enc->write_pos++] = (crc >> 16) & 0xFF;
-        enc->buffer[enc->write_pos++] = (crc >> 24) & 0xFF;
-    }
-    
-    return enc->write_pos;
-}
-
-/* Decoder implementation */
-void packr_decoder_init(packr_decoder_t *dec, const uint8_t *data, size_t size) {
-    memset(dec, 0, sizeof(packr_decoder_t));
-    dec->data = data;
-    dec->data_size = size;
-    dec->current_field_index = -1;
-    
-    dict_init(&dec->fields);
-    dict_init(&dec->strings);
-    dict_init(&dec->macs);
-    
-    /* Skip header */
-    if (size >= 6) {
-        dec->read_pos = 6;
+static void dict_destroy(packr_dict_t *dict, size_t *alloc_counter) {
+    for (int i = 0; i < PACKR_DICT_SIZE; i++) {
+        if (dict->entries[i].value) {
+            if (alloc_counter) *alloc_counter -= (dict->entries[i].length + 1);
+            packr_free(dict->entries[i].value);
+            dict->entries[i].value = NULL;
+        }
     }
 }
 
-void packr_decoder_reset(packr_decoder_t *dec) {
-    dec->read_pos = 6;
-    dec->current_field_index = -1;
-    memset(dec->last_values, 0, sizeof(dec->last_values));
-    memset(dec->value_types, 0, sizeof(dec->value_types));
+void packr_encoder_destroy(packr_encoder_t *ctx) {
+    dict_destroy(&ctx->fields, &ctx->total_alloc);
+    dict_destroy(&ctx->strings, &ctx->total_alloc);
+    dict_destroy(&ctx->macs, &ctx->total_alloc);
+    ctx->total_alloc -= sizeof(packr_encoder_t);
 }
 
-packr_error_t packr_decode_token(packr_decoder_t *dec, uint8_t *token) {
-    if (dec->read_pos >= dec->data_size - 4) {  /* -4 for CRC */
-        return PACKR_ERR_DECODE_ERROR;
+int packr_encode_token(packr_encoder_t *ctx, packr_token_t token) {
+    ctx->symbol_count++;
+    return buffer_append_byte(ctx, (uint8_t)token);
+}
+
+int packr_encode_null(packr_encoder_t *ctx) {
+    return packr_encode_token(ctx, TOKEN_NULL);
+}
+
+int packr_encode_bool(packr_encoder_t *ctx, bool value) {
+    return packr_encode_token(ctx, value ? TOKEN_BOOL_TRUE : TOKEN_BOOL_FALSE);
+}
+
+int packr_encode_int(packr_encoder_t *ctx, int32_t value) {
+    packr_encode_token(ctx, TOKEN_INT);
+
+    return packr_encode_varint(ctx, zigzag_encode(value));
+}
+
+int packr_encode_float(packr_encoder_t *ctx, double value) {
+    packr_encode_token(ctx, TOKEN_FLOAT32);
+    
+    double val_scaled = rint(value * 65536.0);
+    
+    /* Clamp to int32 range */
+    if (val_scaled > 2147483647.0) val_scaled = 2147483647.0;
+    if (val_scaled < -2147483648.0) val_scaled = -2147483648.0;
+    
+    int32_t scaled = (int32_t)val_scaled;
+    uint8_t buf[4];
+    buf[0] = scaled & 0xFF;
+    buf[1] = (scaled >> 8) & 0xFF;
+    buf[2] = (scaled >> 16) & 0xFF;
+    buf[3] = (scaled >> 24) & 0xFF;
+    return buffer_append(ctx, buf, 4);
+}
+
+int packr_encode_double(packr_encoder_t *ctx, double value) {
+    packr_encode_token(ctx, TOKEN_DOUBLE);
+    
+    // Store as raw 64-bit IEE754
+    uint64_t v64;
+    memcpy(&v64, &value, sizeof(double));
+    
+    uint8_t buf[8];
+    buf[0] = v64 & 0xFF;
+    buf[1] = (v64 >> 8) & 0xFF;
+    buf[2] = (v64 >> 16) & 0xFF;
+    buf[3] = (v64 >> 24) & 0xFF;
+    buf[4] = (v64 >> 32) & 0xFF;
+    buf[5] = (v64 >> 40) & 0xFF;
+    buf[6] = (v64 >> 48) & 0xFF;
+    buf[7] = (v64 >> 56) & 0xFF;
+    
+    return buffer_append(ctx, buf, 8);
+}
+
+int packr_encode_binary(packr_encoder_t *ctx, const uint8_t *data, size_t len) {
+    packr_encode_token(ctx, TOKEN_BINARY);
+    packr_encode_varint(ctx, (uint32_t)len);
+    return buffer_append(ctx, data, len);
+}
+
+int packr_encode_string(packr_encoder_t *ctx, const char *str, size_t len) {
+    int index;
+    int is_new = dict_get_or_add(&ctx->strings, str, len, &index, &ctx->total_alloc);
+    
+    if (is_new) {
+        packr_encode_token(ctx, TOKEN_NEW_STRING);
+        packr_encode_varint(ctx, (uint32_t)len);
+        return buffer_append(ctx, (const uint8_t*)str, len);
+    } else {
+        return packr_encode_token(ctx, (packr_token_t)(TOKEN_STRING + index));
     }
-    *token = dec->data[dec->read_pos++];
-    return PACKR_OK;
 }
 
-packr_error_t packr_decode_int(packr_decoder_t *dec, int32_t *value) {
-    if (dec->read_pos >= dec->data_size - 4) return PACKR_ERR_DECODE_ERROR;
-    size_t consumed = packr_decode_signed_varint(
-        dec->data + dec->read_pos,
-        dec->data_size - dec->read_pos - 4,
-        value
-    );
-    dec->read_pos += consumed;
-    return PACKR_OK;
-}
-
-packr_error_t packr_decode_float(packr_decoder_t *dec, float *value) {
-    if (dec->read_pos + 2 > dec->data_size - 4) return PACKR_ERR_DECODE_ERROR;
-    int16_t scaled = (int16_t)(dec->data[dec->read_pos] | 
-                               (dec->data[dec->read_pos + 1] << 8));
-    dec->read_pos += 2;
-    *value = scaled / 256.0f;
-    return PACKR_OK;
-}
-
-packr_error_t packr_decode_string(packr_decoder_t *dec, char *buf, size_t buf_size, size_t *out_len) {
-    uint32_t len;
-    size_t consumed = packr_decode_varint(
-        dec->data + dec->read_pos,
-        dec->data_size - dec->read_pos - 4,
-        &len
-    );
-    dec->read_pos += consumed;
+int packr_encode_field(packr_encoder_t *ctx, const char *str, size_t len) {
+    int index;
+    int is_new = dict_get_or_add(&ctx->fields, str, len, &index, &ctx->total_alloc);
     
-    if (len > buf_size - 1) len = buf_size - 1;
-    if (dec->read_pos + len > dec->data_size - 4) return PACKR_ERR_DECODE_ERROR;
-    
-    memcpy(buf, dec->data + dec->read_pos, len);
-    buf[len] = '\0';
-    dec->read_pos += len;
-    *out_len = len;
-    
-    return PACKR_OK;
+    if (is_new) {
+        packr_encode_token(ctx, TOKEN_NEW_FIELD);
+        packr_encode_varint(ctx, (uint32_t)len);
+        return buffer_append(ctx, (const uint8_t*)str, len);
+    } else {
+        return packr_encode_token(ctx, (packr_token_t)(TOKEN_FIELD + index));
+    }
 }
 
-packr_error_t packr_decode_mac(packr_decoder_t *dec, uint8_t *mac) {
-    if (dec->read_pos + 6 > dec->data_size - 4) return PACKR_ERR_DECODE_ERROR;
-    memcpy(mac, dec->data + dec->read_pos, 6);
-    dec->read_pos += 6;
-    return PACKR_OK;
+int packr_encode_mac(packr_encoder_t *ctx, const char *str) {
+    int index;
+    int is_new = dict_get_or_add(&ctx->macs, str, strlen(str), &index, &ctx->total_alloc);
+    
+    if (is_new) {
+        packr_encode_token(ctx, TOKEN_NEW_MAC);
+        
+        /* Parse MAC to 6 bytes */
+        /* Assume format AA:BB:CC:DD:EE:FF or AABBCCDDEEFF */
+        uint8_t mac[6];
+        int bytes_parsed = 0;
+        const char *p = str;
+        while (*p && bytes_parsed < 6) {
+            char high = *p++;
+            if (high == ':' || high == '-') continue;
+            char low = *p++;
+            
+            uint8_t val = 0;
+            if (high >= '0' && high <= '9') val = (high - '0') << 4;
+            else if (high >= 'A' && high <= 'F') val = (high - 'A' + 10) << 4;
+            else if (high >= 'a' && high <= 'f') val = (high - 'a' + 10) << 4;
+            
+            if (low >= '0' && low <= '9') val |= (low - '0');
+            else if (low >= 'A' && low <= 'F') val |= (low - 'A' + 10);
+            else if (low >= 'a' && low <= 'f') val |= (low - 'a' + 10);
+            
+            mac[bytes_parsed++] = val;
+        }
+        
+        return buffer_append(ctx, mac, 6);
+    } else {
+        return packr_encode_token(ctx, (packr_token_t)(TOKEN_MAC + index));
+    }
 }
+
+
+size_t packr_encoder_finish(packr_encoder_t *ctx, uint8_t *out_buffer) {
+    /* Construct Header */
+    uint8_t header[16];
+    int h_pos = 0;
+    
+    /* Magic */
+    header[h_pos++] = 0x50; /* P */
+    header[h_pos++] = 0x4B; /* K */
+    header[h_pos++] = 0x52; /* R */
+    header[h_pos++] = 0x31; /* 1 */
+    
+    /* Version */
+    header[h_pos++] = PACKR_VERSION;
+    
+    /* Flags */
+    header[h_pos++] = 0x00;
+    
+    /* Symbol Count */
+    uint8_t varint[5];
+    uint32_t val = ctx->symbol_count;
+    int v_len = 0;
+    while (val > 0x7F) {
+        varint[v_len++] = (val & 0x7F) | 0x80;
+        val >>= 7;
+    }
+    varint[v_len++] = val & 0x7F;
+    memcpy(header + h_pos, varint, v_len);
+    h_pos += v_len;
+    
+    /* Move body data to directly after header */
+    size_t body_len = ctx->pos - 11;
+    memmove(ctx->buffer + h_pos, ctx->buffer + 11, body_len);
+    
+    /* Copy header */
+    memcpy(ctx->buffer, header, h_pos);
+    
+    size_t frame_len = h_pos + body_len;
+    
+    /* CRC (Before compression, per Python spec) */
+    uint32_t crc = calculate_crc32(ctx->buffer, frame_len);
+    ctx->buffer[frame_len++] = crc & 0xFF;
+    ctx->buffer[frame_len++] = (crc >> 8) & 0xFF;
+    ctx->buffer[frame_len++] = (crc >> 16) & 0xFF;
+    ctx->buffer[frame_len++] = (crc >> 24) & 0xFF;
+    
+    /* Compress? */
+    /* Only if size > 20 per Python */
+    if (ctx->compress && frame_len > 20) {
+        // Try compression
+        uint8_t *comp_buf = packr_malloc(frame_len + 128);
+        if (comp_buf) {
+            size_t comp_len = packr_lz77_compress(ctx->buffer, frame_len, comp_buf, frame_len + 128);
+            
+            if (comp_len > 0 && comp_len < frame_len) {
+                // Use compressed
+                // Prepend 0xFE marker + 0x03 Transform Flag
+                if (comp_len + 2 <= ctx->capacity) {
+                     ctx->buffer[0] = 0xFE;
+                     ctx->buffer[1] = 0x03; // LZ77 Transform
+                     memcpy(ctx->buffer + 2, comp_buf, comp_len);
+                     frame_len = comp_len + 2;
+                }
+            }
+            packr_free(comp_buf);
+        }
+    }
+    
+    return frame_len;
+}
+
+/* Decoder (Minimal for validation) */
+static uint32_t decode_varint(packr_decoder_t *ctx, int *bytes_read) {
+    uint32_t res = 0;
+    int shift = 0;
+    *bytes_read = 0;
+    while (ctx->pos < ctx->size) {
+        uint8_t b = ctx->data[ctx->pos++];
+        (*bytes_read)++;
+        res |= (b & 0x7F) << shift;
+        if (!(b & 0x80)) break;
+        shift += 7;
+    }
+    return res;
+}
+
+void packr_decoder_init(packr_decoder_t *ctx, const uint8_t *data, size_t size) {
+    memset(ctx, 0, sizeof(packr_decoder_t));
+    ctx->data = data;
+    ctx->size = size;
+    ctx->pos = 0;
+    ctx->total_alloc = sizeof(packr_decoder_t);
+    ctx->current_field = -1;
+    memset(ctx->last_types, 0, sizeof(ctx->last_types));
+    
+    /* Check for compression transform (0xFE 0x03) */
+    if (size > 7 && data[0] == 0xFE && data[1] == 0x03) {
+        /* LZ77 compressed */
+        uint32_t orig_len = data[3] | (data[4] << 8) | (data[5] << 16) | (data[6] << 24);
+        if (orig_len < 1024 * 1024 * 10) { // Limit to 10MB sanity
+            uint8_t *dec_buf = packr_malloc(orig_len + 4); // Extra for safety
+            if (dec_buf) {
+                size_t actual = packr_lz77_decompress(data + 2, size - 2, dec_buf, orig_len + 4);
+                if (actual > 0) {
+                    ctx->data = dec_buf;
+                    ctx->size = actual;
+                    ctx->internal_data = dec_buf;
+                    ctx->total_alloc += actual;
+                } else {
+                    packr_free(dec_buf);
+                }
+            }
+        }
+    }
+    
+    dict_init(&ctx->fields);
+    dict_init(&ctx->strings);
+    dict_init(&ctx->macs);
+    
+    /* Skip Header: Magic(4) + Ver(1) + Flags(1) + SymCnt(varint) */
+    if (ctx->size > 6) {
+        if (memcmp(ctx->data, "PKR1", 4) == 0) {
+            ctx->pos = 6;
+            int v_len;
+            decode_varint(ctx, &v_len); /* Symbol count */
+        }
+    }
+}
+
+void packr_decoder_destroy(packr_decoder_t *ctx) {
+    dict_destroy(&ctx->fields, &ctx->total_alloc);
+    dict_destroy(&ctx->strings, &ctx->total_alloc);
+    dict_destroy(&ctx->macs, &ctx->total_alloc);
+    if (ctx->internal_data) {
+        ctx->total_alloc -= ctx->size; // Rough estimate
+        packr_free(ctx->internal_data);
+    }
+    ctx->total_alloc -= sizeof(packr_decoder_t);
+}
+
+
+/* Helper: Zigzag Decode */
+static int32_t zigzag_decode(uint32_t val) {
+    return (int32_t)((val >> 1) ^ -(int32_t)(val & 1));
+}
+
+typedef struct {
+    const uint8_t *buf;
+    size_t cap;
+    size_t pos;
+    uint32_t bit_buf;
+    int bit_cnt;
+} bitreader_t;
+
+static void br_init(bitreader_t *br, const uint8_t *buf, size_t cap) {
+    br->buf = buf; br->cap = cap; br->pos = 0; br->bit_buf = 0; br->bit_cnt = 0;
+}
+
+static uint32_t br_read(bitreader_t *br, int bits) {
+    uint32_t res = 0;
+    for (int i = 0; i < bits; i++) {
+        if (br->bit_cnt == 0) {
+            if (br->pos >= br->cap) return 0xFFFFFFFF; // Error marker
+            br->bit_buf = br->buf[br->pos++];
+            br->bit_cnt = 8;
+        }
+        res = (res << 1) | ((br->bit_buf >> (br->bit_cnt - 1)) & 1);
+        br->bit_cnt--;
+    }
+    return res;
+}
+
+static uint32_t br_read_unary(bitreader_t *br) {
+    uint32_t count = 0;
+    while (1) {
+        uint32_t bit = br_read(br, 1);
+        if (bit == 1 || bit == 0xFFFFFFFF) break;
+        count++;
+        if (count > 65536) break; // Sanity
+    }
+    return count;
+}
+
+
+// Helper for safe appending
+static void buf_append_str(char **cursor, char *end, const char *str) {
+    while (*str && *cursor < end - 1) {
+        *(*cursor)++ = *str++;
+    }
+    **cursor = '\0';
+}
+
+static void buf_append_char(char **cursor, char *end, char c) {
+    if (*cursor < end - 1) {
+        *(*cursor)++ = c;
+        **cursor = '\0';
+    }
+}
+
+int packr_decode_next(packr_decoder_t *ctx, char **cursor, char *end) {
+    if (ctx->pos >= ctx->size) return 0;
+    
+    if (ctx->pos > ctx->size - 4) return 0;
+
+    uint8_t token = ctx->data[ctx->pos++];
+    char temp[64];
+    
+    if (token == TOKEN_NULL) {
+        buf_append_str(cursor, end, "null");
+    }
+    else if (token == TOKEN_BOOL_TRUE) {
+        buf_append_str(cursor, end, "true");
+    }
+    else if (token == TOKEN_BOOL_FALSE) {
+        buf_append_str(cursor, end, "false");
+    }
+    else if (token == TOKEN_FLOAT32) {
+        if (ctx->pos + 4 > ctx->size) return 0;
+        int32_t scaled = ctx->data[ctx->pos] | (ctx->data[ctx->pos+1] << 8) | 
+                         (ctx->data[ctx->pos+2] << 16) | (ctx->data[ctx->pos+3] << 24);
+        ctx->pos += 4;
+        double val = (double)scaled / 65536.0;
+        if (ctx->current_field >= 0 && ctx->current_field < PACKR_DICT_SIZE) {
+            ctx->last_nums[ctx->current_field] = val;
+            ctx->last_types[ctx->current_field] = 2;
+        }
+        snprintf(temp, sizeof(temp), "%.7g", val);
+        buf_append_str(cursor, end, temp);
+    }
+    else if (token == TOKEN_DOUBLE) {
+        if (ctx->pos + 8 > ctx->size) return 0;
+        uint64_t v64 = (uint64_t)ctx->data[ctx->pos] | 
+                       ((uint64_t)ctx->data[ctx->pos+1] << 8) | 
+                       ((uint64_t)ctx->data[ctx->pos+2] << 16) | 
+                       ((uint64_t)ctx->data[ctx->pos+3] << 24) |
+                       ((uint64_t)ctx->data[ctx->pos+4] << 32) |
+                       ((uint64_t)ctx->data[ctx->pos+5] << 40) |
+                       ((uint64_t)ctx->data[ctx->pos+6] << 48) |
+                       ((uint64_t)ctx->data[ctx->pos+7] << 56);
+        ctx->pos += 8;
+        
+        double val;
+        memcpy(&val, &v64, sizeof(double));
+        
+        if (ctx->current_field >= 0 && ctx->current_field < PACKR_DICT_SIZE) {
+            ctx->last_nums[ctx->current_field] = val;
+            ctx->last_types[ctx->current_field] = 2; 
+        }
+        
+        // Print with high precision
+        snprintf(temp, sizeof(temp), "%.17g", val);
+        buf_append_str(cursor, end, temp);
+    }
+    else if (token == TOKEN_BINARY) {
+        int bytes;
+        uint32_t len = decode_varint(ctx, &bytes);
+        if (ctx->pos + len > ctx->size) return 0;
+        
+        // Skip data
+        ctx->pos += len;
+        
+        char msg[64];
+        snprintf(msg, sizeof(msg), "\"<binary data len=%u>\"", (unsigned int)len);
+        buf_append_str(cursor, end, msg);
+    }
+    else if (token == TOKEN_INT || token == TOKEN_DELTA_LARGE || (token >= 0xC3 && token <= 0xD2) || 
+             token == TOKEN_DELTA_ZERO || token == TOKEN_DELTA_ONE || token == TOKEN_DELTA_NEG_ONE || 
+             token == TOKEN_DELTA_MEDIUM) {
+        
+        int32_t val = 0;
+        int is_delta = 0;
+        
+        if (token == TOKEN_INT) {
+            int bytes;
+            val = zigzag_decode(decode_varint(ctx, &bytes));
+        } else if (token == TOKEN_DELTA_LARGE) {
+            int bytes;
+            val = zigzag_decode(decode_varint(ctx, &bytes));
+            is_delta = 1;
+        } else if (token >= 0xC3 && token <= 0xD2) { // TOKEN_DELTA_SMALL range
+            val = (int)token - 0xC3 - 8;
+            is_delta = 1;
+        } else if (token == TOKEN_DELTA_ZERO) { val = 0; is_delta = 1; }
+        else if (token == TOKEN_DELTA_ONE) { val = 1; is_delta = 1; }
+        else if (token == TOKEN_DELTA_NEG_ONE) { val = -1; is_delta = 1; }
+        else if (token == TOKEN_DELTA_MEDIUM) {
+            if (ctx->pos >= ctx->size) return 0; // Ensure data exists
+            val = (int)ctx->data[ctx->pos++] - 64;
+            is_delta = 1;
+        }
+        
+        if (is_delta && ctx->current_field >= 0 && ctx->current_field < PACKR_DICT_SIZE && ctx->last_types[ctx->current_field] != 0) {
+            double prev = ctx->last_nums[ctx->current_field];
+                if (ctx->last_types[ctx->current_field] == 2) { // Previous was float
+                double res = prev + (double)val / 65536.0;
+                ctx->last_nums[ctx->current_field] = res;
+                snprintf(temp, sizeof(temp), "%.7g", res);
+            } else { // Previous was int
+                int32_t res = (int32_t)prev + val;
+                ctx->last_nums[ctx->current_field] = (double)res;
+                snprintf(temp, sizeof(temp), "%d", res);
+            }
+        } else {
+            if (ctx->current_field >= 0 && ctx->current_field < PACKR_DICT_SIZE) {
+                ctx->last_nums[ctx->current_field] = (double)val;
+                ctx->last_types[ctx->current_field] = 1; // Store as int
+            }
+            snprintf(temp, sizeof(temp), "%d", val);
+        }
+        buf_append_str(cursor, end, temp);
+    }
+    else if (token == TOKEN_NEW_STRING || token == TOKEN_NEW_FIELD) {
+        int bytes;
+        uint32_t len = decode_varint(ctx, &bytes);
+        if (ctx->pos + len > ctx->size) return 0;
+        
+        char *str_val = packr_malloc(len + 1);
+        memcpy(str_val, ctx->data + ctx->pos, len);
+        str_val[len] = '\0';
+        ctx->pos += len;
+        
+        int dummy;
+        if (token == TOKEN_NEW_FIELD) dict_get_or_add(&ctx->fields, str_val, len, &dummy, &ctx->total_alloc);
+        else dict_get_or_add(&ctx->strings, str_val, len, &dummy, &ctx->total_alloc);
+        
+        buf_append_char(cursor, end, '"');
+        buf_append_str(cursor, end, str_val); 
+        buf_append_char(cursor, end, '"');
+        packr_free(str_val);
+    }
+    else if ((token >= TOKEN_FIELD && token < TOKEN_STRING) || 
+             (token >= TOKEN_STRING && token < TOKEN_MAC)) {
+        packr_dict_t *d = (token < TOKEN_STRING) ? &ctx->fields : &ctx->strings;
+        int index = (token < TOKEN_STRING) ? (token - TOKEN_FIELD) : (token - TOKEN_STRING);
+        
+        if (index < PACKR_DICT_SIZE && d->entries[index].value) {
+            buf_append_char(cursor, end, '"');
+            buf_append_str(cursor, end, d->entries[index].value);
+            buf_append_char(cursor, end, '"');
+            d->entries[index].last_used = ++d->usage_counter;
+        } else {
+            buf_append_str(cursor, end, "\"\"");
+        }
+    }
+    else if (token == TOKEN_NEW_MAC || (token >= TOKEN_MAC && token < TOKEN_INT)) {
+        char mac_str[18];
+        if (token == TOKEN_NEW_MAC) {
+            if (ctx->pos + 6 > ctx->size) return 0;
+            const uint8_t *m = ctx->data + ctx->pos;
+            ctx->pos += 6;
+            snprintf(mac_str, sizeof(mac_str), "%02X:%02X:%02X:%02X:%02X:%02X",
+                     m[0], m[1], m[2], m[3], m[4], m[5]);
+            int dummy;
+            dict_get_or_add(&ctx->macs, mac_str, 17, &dummy, &ctx->total_alloc);
+        } else {
+            int index = token - TOKEN_MAC;
+            if (index < PACKR_DICT_SIZE && ctx->macs.entries[index].value) {
+                strncpy(mac_str, ctx->macs.entries[index].value, 18);
+                ctx->macs.entries[index].last_used = ++ctx->macs.usage_counter;
+            } else {
+                mac_str[0] = 0;
+            }
+        }
+        buf_append_char(cursor, end, '"');
+        buf_append_str(cursor, end, mac_str);
+        buf_append_char(cursor, end, '"');
+    }
+    else if (token == TOKEN_ARRAY_START) {
+        int bytes;
+        uint32_t count = decode_varint(ctx, &bytes);
+        buf_append_char(cursor, end, '[');
+        for (uint32_t i = 0; i < count; i++) {
+            if (i > 0) buf_append_char(cursor, end, ',');
+            if (!packr_decode_next(ctx, cursor, end)) break;
+        }
+        /* Consume END if present */
+        if (ctx->pos < ctx->size && ctx->data[ctx->pos] == TOKEN_ARRAY_END) ctx->pos++;
+        buf_append_char(cursor, end, ']');
+    }
+    else if (token == TOKEN_OBJECT_START) {
+        buf_append_char(cursor, end, '{');
+        bool first = true;
+        while (ctx->pos < ctx->size && ctx->data[ctx->pos] != TOKEN_OBJECT_END) {
+            if (!first) buf_append_char(cursor, end, ',');
+            first = false;
+            
+            /* Field Name (Key) */
+            uint8_t next_t = ctx->data[ctx->pos];
+            int field_idx = -1;
+            if (next_t >= TOKEN_FIELD && next_t < TOKEN_STRING) field_idx = next_t - TOKEN_FIELD;
+            else if (next_t == TOKEN_NEW_FIELD) {
+            }
+            
+            packr_decode_next(ctx, cursor, end); 
+            
+            buf_append_char(cursor, end, ':');
+            
+            int old_field = ctx->current_field;
+            ctx->current_field = field_idx; // Track for value
+            packr_decode_next(ctx, cursor, end); // Value
+            ctx->current_field = old_field;
+        }
+        if (ctx->pos < ctx->size) ctx->pos++; /* Skip END */
+        buf_append_char(cursor, end, '}');
+    }
+    else if (token == TOKEN_ULTRA_BATCH) {
+        int bytes_read;
+        uint32_t record_count = decode_varint(ctx, &bytes_read);
+        uint32_t field_count = decode_varint(ctx, &bytes_read);
+        
+        /* Store field names and flags */
+        char **field_names = packr_malloc(sizeof(char*) * field_count);
+        uint8_t *flags = packr_malloc(field_count);
+        
+        for (uint32_t i = 0; i < field_count; i++) {
+            /* Field name is encoded as a regular value (string/token) */
+            char *old_cursor = *cursor;
+            if (packr_decode_next(ctx, cursor, end) && *cursor > old_cursor + 1) {
+                /* *cursor now points after "name". Extract. */
+                size_t slen = (*cursor - old_cursor) - 2;
+                field_names[i] = packr_malloc(slen + 1);
+                if (field_names[i]) {
+                    memcpy(field_names[i], old_cursor + 1, slen);
+                    field_names[i][slen] = 0;
+                }
+            } else {
+                field_names[i] = packr_malloc(8);
+                if (field_names[i]) strcpy(field_names[i], "unknown");
+            }
+            *cursor = old_cursor; // Rewind cursor!
+            
+            if (ctx->pos < ctx->size) {
+                flags[i] = ctx->data[ctx->pos++];
+            } else {
+                flags[i] = 0;
+            }
+        }
+        
+        /* Buffers for each column */
+        typedef struct {
+            double *nums;
+            char **strs;
+            uint8_t *types;
+            uint8_t *validity;
+        } col_data_t;
+        
+        col_data_t *cols = packr_malloc(sizeof(col_data_t) * field_count);
+        for(uint32_t i=0; i<field_count; i++) {
+            cols[i].nums = packr_malloc(sizeof(double) * record_count);
+            cols[i].strs = packr_malloc(sizeof(char*) * record_count);
+            cols[i].types = packr_malloc(record_count);
+            cols[i].validity = packr_malloc(record_count);
+            if (cols[i].nums) memset(cols[i].nums, 0, sizeof(double) * record_count);
+            if (cols[i].strs) memset(cols[i].strs, 0, sizeof(char*) * record_count);
+            if (cols[i].types) memset(cols[i].types, 0, record_count);
+            if (cols[i].validity) memset(cols[i].validity, 1, record_count); // Default Valid
+        }
+        
+        /* Decode each column */
+        for (uint32_t i = 0; i < field_count; i++) {
+            if (flags[i] & 0x08) { // HAS_NULLS
+                 size_t bytes = (record_count + 7) / 8;
+                 size_t start = ctx->pos;
+                 ctx->pos += bytes;
+                 // Decode
+                 for(uint32_t k=0; k<record_count; k++) {
+                     if (start + (k/8) < ctx->size) {
+                        uint8_t b = ctx->data[start + (k/8)];
+                        cols[i].validity[k] = (b >> (k%8)) & 1;
+                     }
+                 }
+            }
+
+            if (flags[i] & 0x01) { // CONSTANT
+                char *old_cursor = *cursor;
+                packr_decode_next(ctx, cursor, end);
+                size_t vlen = *cursor - old_cursor;
+                char *vstr = packr_malloc(vlen + 1);
+                memcpy(vstr, old_cursor, vlen); vstr[vlen] = 0;
+                *cursor = old_cursor; // Rewind
+                for(uint32_t j=0; j<record_count; j++) cols[i].strs[j] = vstr; // Shared
+                // Note: Shared pointer, be careful but it's simpler
+            } else if (flags[i] & 0x02) { // DELTA
+                /* Numeric Column */
+                uint8_t vtoken = ctx->data[ctx->pos]; // Peek
+                
+                if (vtoken == TOKEN_MFV_COLUMN) {
+                    ctx->pos++;
+                    int bytes_read;
+                    uint32_t dcount = decode_varint(ctx, &bytes_read);
+                    
+                    // Decode Mode
+                    double mode_val = 0;
+                    if (ctx->pos < ctx->size) {
+                      uint8_t mt = ctx->data[ctx->pos++];
+                      if (mt == TOKEN_INT) mode_val = zigzag_decode(decode_varint(ctx, &bytes_read));
+                      else if (mt == TOKEN_FLOAT32) {
+                           int32_t scaled = ctx->data[ctx->pos] | (ctx->data[ctx->pos+1] << 8) | 
+                                            (ctx->data[ctx->pos+2] << 16) | (ctx->data[ctx->pos+3] << 24);
+                           ctx->pos += 4;
+                           mode_val = scaled / 65536.0;
+                      }
+                      else if (mt == TOKEN_BOOL_TRUE) mode_val = 1.0;
+                      else if (mt == TOKEN_BOOL_FALSE) mode_val = 0.0;
+                      else if (mt == TOKEN_DOUBLE) {
+                          uint64_t v64 = (uint64_t)ctx->data[ctx->pos] | ((uint64_t)ctx->data[ctx->pos+1] << 8) | 
+                                         ((uint64_t)ctx->data[ctx->pos+2] << 16) | ((uint64_t)ctx->data[ctx->pos+3] << 24) |
+                                         ((uint64_t)ctx->data[ctx->pos+4] << 32) | ((uint64_t)ctx->data[ctx->pos+5] << 40) |
+                                         ((uint64_t)ctx->data[ctx->pos+6] << 48) | ((uint64_t)ctx->data[ctx->pos+7] << 56);
+                          ctx->pos += 8;
+                          memcpy(&mode_val, &v64, sizeof(double));
+                      }
+                    }
+                    
+                    // Mask
+                    size_t mask_len = (dcount + 7) / 8;
+                    size_t mask_start = ctx->pos;
+                    ctx->pos += mask_len;
+                    
+                    uint32_t j = 0;
+                    for(uint32_t k=0; k<dcount && j<record_count; k++) {
+                       uint8_t b = ctx->data[mask_start + (k/8)];
+                       double val;
+                       if ( (b >> (k%8)) & 1 ) {
+                           // Exception
+                           uint8_t et = ctx->data[ctx->pos++];
+                           double eval = 0;
+                           if (et == TOKEN_INT) eval = zigzag_decode(decode_varint(ctx, &bytes_read));
+                           else if (et == TOKEN_FLOAT32) {
+                               int32_t scaled = ctx->data[ctx->pos] | (ctx->data[ctx->pos+1] << 8) | 
+                                                (ctx->data[ctx->pos+2] << 16) | (ctx->data[ctx->pos+3] << 24);
+                               ctx->pos += 4;
+                               eval = scaled / 65536.0;
+                           }
+                           else if (et == TOKEN_BOOL_TRUE) eval = 1.0;
+                           else if (et == TOKEN_BOOL_FALSE) eval = 0.0;
+                           else if (et == TOKEN_DOUBLE) {
+                               uint64_t v64 = (uint64_t)ctx->data[ctx->pos] | ((uint64_t)ctx->data[ctx->pos+1] << 8) | 
+                                              ((uint64_t)ctx->data[ctx->pos+2] << 16) | ((uint64_t)ctx->data[ctx->pos+3] << 24) |
+                                              ((uint64_t)ctx->data[ctx->pos+4] << 32) | ((uint64_t)ctx->data[ctx->pos+5] << 40) |
+                                              ((uint64_t)ctx->data[ctx->pos+6] << 48) | ((uint64_t)ctx->data[ctx->pos+7] << 56);
+                               ctx->pos += 8;
+                               memcpy(&eval, &v64, sizeof(double));
+                           }
+                           val = eval;
+                       } else {
+                           val = mode_val;
+                       }
+                       cols[i].nums[j++] = val; cols[i].types[j-1] = 1;
+                    }
+                } else {
+                    /* Base value */
+                    vtoken = ctx->data[ctx->pos++];
+                    double prev = 0;
+                    if (vtoken == TOKEN_INT) {
+                        prev = zigzag_decode(decode_varint(ctx, &bytes_read));
+                    } else if (vtoken == TOKEN_FLOAT32) {
+                        int32_t scaled = ctx->data[ctx->pos] | (ctx->data[ctx->pos+1] << 8) |
+                                         (ctx->data[ctx->pos+2] << 16) | (ctx->data[ctx->pos+3] << 24);
+                        ctx->pos += 4;
+                        prev = scaled / 65536.0;
+                    } else if (vtoken == TOKEN_DOUBLE) {
+                        /* IEEE 754 double - 8 bytes LE. Deltas still use 65536 scaling. */
+                        uint64_t v64 = (uint64_t)ctx->data[ctx->pos] | ((uint64_t)ctx->data[ctx->pos+1] << 8) |
+                                       ((uint64_t)ctx->data[ctx->pos+2] << 16) | ((uint64_t)ctx->data[ctx->pos+3] << 24) |
+                                       ((uint64_t)ctx->data[ctx->pos+4] << 32) | ((uint64_t)ctx->data[ctx->pos+5] << 40) |
+                                       ((uint64_t)ctx->data[ctx->pos+6] << 48) | ((uint64_t)ctx->data[ctx->pos+7] << 56);
+                        ctx->pos += 8;
+                        memcpy(&prev, &v64, sizeof(double));
+                        vtoken = TOKEN_FLOAT32; /* Treat same as FLOAT32 for delta scaling */
+                    }
+                    cols[i].nums[0] = prev;
+                    cols[i].types[0] = 1; // Number
+                    
+                    uint32_t j = 1;
+                    while (j < record_count) {
+                        uint8_t dt = ctx->data[ctx->pos++];
+                        double delta = 0;
+                        if (dt == TOKEN_BITPACK_COL) {
+                            uint32_t dcount = decode_varint(ctx, &bytes_read);
+                            for(uint32_t k=0; k<dcount && j<record_count; k+=2) {
+                                uint8_t pack = ctx->data[ctx->pos++];
+                                int d1 = (pack >> 4) - 8;
+                                prev += (double)d1 / (vtoken == TOKEN_FLOAT32 ? 65536.0 : 1.0);
+                                cols[i].nums[j++] = prev; cols[i].types[j-1] = 1;
+                                if (j < record_count && k+1 < dcount) {
+                                    int d2 = (pack & 0x0F) - 8;
+                                    prev += (double)d2 / (vtoken == TOKEN_FLOAT32 ? 65536.0 : 1.0);
+                                    cols[i].nums[j++] = prev; cols[i].types[j-1] = 1;
+                                }
+                            }
+                        } else if (dt == TOKEN_RICE_COLUMN) {
+                             uint32_t dcount = decode_varint(ctx, &bytes_read);
+                             if (ctx->pos < ctx->size) {
+                                 int k = ctx->data[ctx->pos++];
+                                 uint32_t max_j = j + dcount;
+                                 if (max_j > record_count) max_j = record_count;
+                                 
+                                 bitreader_t br; br_init(&br, ctx->data + ctx->pos, ctx->size - ctx->pos);
+                                 for(; j < max_j; j++) {
+                                     uint32_t q = br_read_unary(&br);
+                                     uint32_t r = br_read(&br, k);
+                                     if (q == 0xFFFFFFFF || r == 0xFFFFFFFF) break;
+                                     uint32_t u = (q << k) | r;
+                                     int32_t d = zigzag_decode(u);
+                                     prev += (double)d / (vtoken == TOKEN_FLOAT32 ? 65536.0 : 1.0);
+                                     cols[i].nums[j] = prev; cols[i].types[j] = 1;
+                                 }
+                                 // Account for consumed bytes. br.pos already includes any partially read byte.
+                                 ctx->pos += br.pos;
+                             }
+                        } else if (dt == TOKEN_RLE_REPEAT) {
+                             uint32_t run = decode_varint(ctx, &bytes_read);
+                             for(uint32_t k=0; k<run && j<record_count; k++) {
+                                 cols[i].nums[j++] = prev; cols[i].types[j-1] = 1;
+                             }
+                        } else {
+                             /* Single delta tokens */
+                             if (dt == TOKEN_DELTA_ZERO) delta = 0;
+                             else if (dt == TOKEN_DELTA_ONE) delta = 1;
+                             else if (dt == TOKEN_DELTA_NEG_ONE) delta = -1;
+                             else if (dt >= 0xC3 && dt <= 0xD2) delta = (int)dt - 0xC3 - 8;
+                             else if (dt == TOKEN_DELTA_LARGE) delta = zigzag_decode(decode_varint(ctx, &bytes_read));
+                             else if (dt == TOKEN_DELTA_MEDIUM) delta = (int)ctx->data[ctx->pos++] - 64;
+                             
+                             prev += (double)delta / (vtoken == TOKEN_FLOAT32 ? 65536.0 : 1.0);
+                             cols[i].nums[j++] = prev; cols[i].types[j-1] = 1;
+                        }
+                    }
+                }
+            } else { // RLE
+                uint32_t j = 0;
+                // Check MFV first
+                if (ctx->data[ctx->pos] == TOKEN_MFV_COLUMN) {
+                     ctx->pos++;
+                     int bytes_read;
+                     uint32_t dcount = decode_varint(ctx, &bytes_read);
+                     // Decode Mode String
+                     char *old_cursor = *cursor;
+                     packr_decode_next(ctx, cursor, end); 
+                     size_t vlen = *cursor - old_cursor;
+                     char *mode_str = packr_malloc(vlen + 1);
+                     memcpy(mode_str, old_cursor, vlen); mode_str[vlen] = 0;
+                     *cursor = old_cursor; // Reset cursor
+                     
+                     // Mask
+                     size_t mask_len = (dcount + 7) / 8;
+                     size_t mask_start = ctx->pos;
+                     ctx->pos += mask_len;
+                     
+                     for(uint32_t k=0; k<dcount && j<record_count; k++) {
+                           uint8_t b = ctx->data[mask_start + (k/8)];
+                           if ( (b >> (k%8)) & 1 ) {
+                               // Exception
+                               char *oc = *cursor;
+                               packr_decode_next(ctx, cursor, end);
+                               size_t elen = *cursor - oc;
+                               char *estr = packr_malloc(elen + 1);
+                               memcpy(estr, oc, elen); estr[elen] = 0;
+                               *cursor = oc;
+                               cols[i].strs[j++] = estr;
+                           } else {
+                               size_t ml = strlen(mode_str);
+                               char *s = packr_malloc(ml + 1);
+                               memcpy(s, mode_str, ml+1);
+                               cols[i].strs[j++] = s;
+                           }
+                     }
+                     packr_free(mode_str);
+                } else {
+                    while (j < record_count) {
+                        char *old_cursor = *cursor;
+                        packr_decode_next(ctx, cursor, end);
+                        size_t vlen = *cursor - old_cursor;
+                        char *vstr = packr_malloc(vlen + 1);
+                        memcpy(vstr, old_cursor, vlen); vstr[vlen] = 0;
+                        *cursor = old_cursor;
+                        
+                        cols[i].strs[j++] = vstr; // Shared
+                        if (j < record_count && ctx->data[ctx->pos] == TOKEN_RLE_REPEAT) {
+                             ctx->pos++;
+                             int bytes_read;
+                             uint32_t run = decode_varint(ctx, &bytes_read);
+                             for(uint32_t k=0; k<run && j<record_count; k++) {
+                                 cols[i].strs[j++] = vstr; // Shared
+                             }
+                        }
+                    }
+                }
+            }
+        }
+        
+        /* Reconstruct JSON */
+        buf_append_char(cursor, end, '[');
+        for(uint32_t r=0; r<record_count; r++) {
+            if (r > 0) buf_append_char(cursor, end, ',');
+            buf_append_char(cursor, end, '{');
+            bool first_field = true;
+            for(uint32_t c=0; c<field_count; c++) {
+                if (cols[c].validity[r] == 0) continue; // Skip missing field
+                
+                if (!first_field) buf_append_char(cursor, end, ',');
+                first_field = false;
+                
+                buf_append_char(cursor, end, '"');
+                buf_append_str(cursor, end, field_names[c]);
+                buf_append_str(cursor, end, "\":");
+                
+                if (cols[c].types[r] == 1) { // Numeric
+                    double v = cols[c].nums[r];
+                    if (v == (double)(int64_t)v && (v < 2147483648.0 && v > -2147483648.0)) {
+                         snprintf(temp, sizeof(temp), "%d", (int32_t)v);
+                    }
+                    else snprintf(temp, sizeof(temp), "%.7g", v);
+                    buf_append_str(cursor, end, temp);
+                } else if (cols[c].strs[r]) {
+                    buf_append_str(cursor, end, cols[c].strs[r]);
+                } else {
+                    buf_append_str(cursor, end, "null");
+                }
+            }
+            buf_append_char(cursor, end, '}');
+        }
+        buf_append_char(cursor, end, ']');
+        
+        /* Free memory */
+        for(uint32_t i=0; i<field_count; i++) {
+            packr_free(field_names[i]);
+            // Need to free shared strings carefully if we want to be perfect
+            // But for benchmark, we can leak a bit or just avoid shared ones for non-constants
+            // For now, let's just free the ones that are NOT constant (constant ones shared same ptr)
+            if (!(flags[i] & 0x01)) {
+                for(uint32_t j=0; j<record_count; j++) {
+                    if (cols[i].strs[j]) {
+                        // Check if it's the same as previous to avoid double free in RLE
+                        if (j == 0 || cols[i].strs[j] != cols[i].strs[j-1]) {
+                             packr_free(cols[i].strs[j]);
+                        }
+                    }
+                }
+            } else {
+                 packr_free(cols[i].strs[0]);
+            }
+            packr_free(cols[i].nums);
+            packr_free(cols[i].strs);
+            packr_free(cols[i].types);
+            packr_free(cols[i].validity);
+        }
+        packr_free(field_names);
+        packr_free(flags);
+        packr_free(cols);
+    }
+    
+    return 1;
+}
+

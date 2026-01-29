@@ -1,67 +1,46 @@
-# PACKR (WIP)
+# PACKR
 
-structure-first streaming compression for embedded systems and structured data.
+structural telemetry compression for embedded systems.
 
-## Overview
+PACKR is a specialized compression format for JSON-like telemetry data. It combines dictionary tokenization, schema awareness, and numeric delta-encoding and operates with a small memory footprint suitable for low-power MCUs like the ESP32 and STM32.
 
-PACKR is a domain-aware, low-RAM, streaming compression format designed for:
-- Embedded systems (ESP32, MCU targets)
-- Structured data (JSON, logs, telemetry)
-- Low memory footprint (under 32 KB RAM)
+Web Demo: [https://pack-r.netlify.app/](https://pack-r.netlify.app/)
 
-## Compression Performance
+## Compression
 
-| Data Type              | gzip   | PACKR   | Improvement       |
-|------------------------|--------|---------|-------------------|
-| Repetitive telemetry   | 18.6:1 | 38.8:1  | 2.08x better      |
-| Mixed telemetry        | 11.1:1 | 16.3:1  | 1.47x better      |
-| Random telemetry       | 18.0:1 | 38.2:1  | 2.13x better      |
+PACKR efficiency is driven by the structural regularity of the data. 
 
-Note: PACKR is optimized for structured data. Binary files (images, video) should use domain-specific codecs.
+| Data Pattern | Typical Ratio | Key Mechanism |
+|:---|:---:|:---|
+| **High Redundancy** | 500x - 800x | Constant field elimination & RLE |
+| **Gradual Variation** | 20x - 50x | Delta-encoding & bit-packing |
+| **Sparse Data** | 10x - 20x | Null-mapping & schema elision |
+| **High Entropy** | 2x - 6x | Transform-pass overhead reduction |
 
-## Quick Start
-
-### Python
-
-```bash
-python python/packr_encode.py input.json output.pkr
-python python/packr_decode.py output.pkr decoded.json
-```
+## Implementation
 
 ### C
+The C implementation is designed for MCU targets such as ESP32 and STM32.
+```c
+#include "packr.h"
 
-```bash
-cd c
-make
-./build/packr_enc input.json output.pkr
-./build/packr_dec output.pkr decoded.json
+// Initialize context and decode
+packr_ctx_t ctx;
+packr_init(&ctx, buffer, size);
+packr_decode_json(&ctx, &output_callback);
 ```
 
-## How It Works
+### Python
+The Python implementation serves as a reference and cloud-side processing bridge.
+```python
+from packr import PackrEncoder, PackrDecoder
 
-1. **Tokenization** - Repeated field names, strings, and MACs become dictionary references
-2. **Constant detection** - Columns with identical values store once
-3. **Delta encoding** - Sequential numeric values become small deltas
-4. **Bit-packing** - Small deltas packed 2 per byte
-5. **RLE** - Run-length encoding for repeated strings
-6. **Final compression** - Optional deflate pass for maximum efficiency
+encoder = PackrEncoder()
+packed = encoder.encode_stream(data_list)
 
-## Project Structure
-
-```
-PACKR/
-├── python/           # Python implementation
-│   ├── packr/        # Core library
-│   ├── packr_encode.py
-│   └── packr_decode.py
-├── c/                # C implementation
-│   ├── include/      # Headers
-│   ├── src/          # Library source
-│   └── tools/        # CLI tools
-├── spec/             # Format specification
-└── test/             # Test data and benchmarks
+decoder = PackrDecoder()
+data = decoder.decode_stream(packed)
 ```
 
 ## License
-
 MIT

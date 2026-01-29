@@ -41,10 +41,12 @@ class TokenType(IntEnum):
     NEW_FIELD = 0xD5      # followed by length + ASCII bytes
     NEW_MAC = 0xD6        # followed by 6 bytes
     
-    # Literals (0xD7-0xD9)
+    # Literals (0xD7-0xD9, 0xDE)
     BOOL_TRUE = 0xD7
     BOOL_FALSE = 0xD8
     NULL = 0xD9
+    DOUBLE = 0xDE         # followed by 8 bytes (IEEE 754 double precision)
+    BINARY = 0xDF         # followed by varint length + raw bytes
     
     # Structure (0xDA-0xDD)
     ARRAY_START = 0xDA    # followed by varint length
@@ -195,6 +197,21 @@ def decode_fixed32(data: bytes, offset: int = 0) -> Tuple[float, int]:
     """
     scaled = struct.unpack_from('<i', data, offset)[0]
     return scaled / 65536.0, 4
+
+
+def encode_double(value: float) -> bytes:
+    """
+    Encode a float as full IEEE 754 double precision (8 bytes).
+    """
+    return struct.pack('<d', value)
+
+
+def decode_double(data: bytes, offset: int = 0) -> Tuple[float, int]:
+    """
+    Decode a full double precision float.
+    """
+    val = struct.unpack_from('<d', data, offset)[0]
+    return val, 8
 
 
 def is_small_delta(delta: int) -> bool:
