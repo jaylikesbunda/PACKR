@@ -112,6 +112,51 @@ static jtoken_type_t next_token(jparser_t *p, char **out_start, size_t *out_len)
     return J_ERROR;
 }
 
+/* Helper to consume an entire JSON object/array string raw */
+static char* consume_json_object(jparser_t *p, size_t *out_len) {
+    skip_whitespace(p);
+    size_t start = p->pos;
+    if (start >= p->len) return NULL;
+    
+    char c = p->json[start];
+    if (c != '{' && c != '[') return NULL;
+    
+    int depth = 0;
+    int in_quote = 0;
+    
+    while (p->pos < p->len) {
+        char cur = p->json[p->pos];
+        
+        if (in_quote) {
+            if (cur == '"' && p->json[p->pos-1] != '\\') in_quote = 0;
+        } else {
+            if (cur == '"') in_quote = 1;
+            else if (cur == '{' || cur == '[') depth++;
+            else if (cur == '}' || cur == ']') {
+                depth--;
+                if (depth == 0) {
+                    p->pos++; // Include closing brace
+                    *out_len = p->pos - start;
+                    char *res = packr_malloc(*out_len + 1);
+                    memcpy(res, p->json + start, *out_len);
+                    res[*out_len] = 0;
+                    return res;
+                }
+            }
+        }
+        p->pos++;
+    }
+    return NULL;
+}
+
+/* Custom Encoder Callback */
+static int encode_json_blob(packr_encoder_t *ctx, void *data) {
+    char *json = (char*)data;
+    if (!json) return packr_encode_null(ctx);
+    // Recursively parse this blob
+    return json_encode_to_packr(json, strlen(json), ctx);
+}
+
 /* Recursive Encoder */
 
 static int encode_value(jparser_t *p, packr_encoder_t *enc);
@@ -207,16 +252,24 @@ static int try_encode_ultra_array(jparser_t *p, packr_encoder_t *enc) {
             // Peek value type
             t = peek_token(&scan_p);
             char *v; size_t vl;
-            t = next_token(&scan_p, &v, &vl); // Consume value
             
             col_type_t new_type = COL_TYPE_NULL;
-            if (t == J_NUMBER) {
-                int is_float = 0;
-                for(size_t i=0; i<vl; i++) if(v[i]=='.' || v[i]=='e' || v[i]=='E') is_float = 1;
-                new_type = is_float ? COL_TYPE_FLOAT : COL_TYPE_INT;
-            } else if (t == J_STRING) new_type = COL_TYPE_STRING;
-            else if (t == J_TRUE || t == J_FALSE) new_type = COL_TYPE_BOOL;
-            else if (t == J_NULL) new_type = COL_TYPE_NULL;
+
+            if (t == J_OBJECT_START || t == J_ARRAY_START) {
+                new_type = COL_TYPE_CUSTOM;
+                char *blob = consume_json_object(&scan_p, &vl);
+                packr_free(blob); // Just scanning, discard data
+            } else {
+                t = next_token(&scan_p, &v, &vl); // Consume scalar
+                
+                if (t == J_NUMBER) {
+                    int is_float = 0;
+                    for(size_t i=0; i<vl; i++) if(v[i]=='.' || v[i]=='e' || v[i]=='E') is_float = 1;
+                    new_type = is_float ? COL_TYPE_FLOAT : COL_TYPE_INT;
+                } else if (t == J_STRING) new_type = COL_TYPE_STRING;
+                else if (t == J_TRUE || t == J_FALSE) new_type = COL_TYPE_BOOL;
+                else if (t == J_NULL) new_type = COL_TYPE_NULL;
+            }
             
             if (found == -1 && new_type != COL_TYPE_NULL) {
                 if (col_count < MAX_BATCH_COLS) {
@@ -230,6 +283,9 @@ static int try_encode_ultra_array(jparser_t *p, packr_encoder_t *enc) {
                  if (types[found] == COL_TYPE_INT && new_type == COL_TYPE_FLOAT) {
                      types[found] = COL_TYPE_FLOAT;
                  }
+                 // Upgrade to CUSTOM if mixed types found?
+                 // For now, if we see an object where we expected int, we have a schema conflict.
+                 // Ultra Batch doesn't handle schema evolution perfectly yet.
             }
             
             t = peek_token(&scan_p);
@@ -262,6 +318,11 @@ static int try_encode_ultra_array(jparser_t *p, packr_encoder_t *enc) {
         else if (types[i] == COL_TYPE_BOOL) {
             cols[i].bools = packr_malloc(sizeof(uint8_t) * MAX_BATCH_ROWS);
             memset(cols[i].bools, 0, sizeof(uint8_t) * MAX_BATCH_ROWS); // Default False
+        }
+        else if (types[i] == COL_TYPE_CUSTOM) {
+            cols[i].custom_data = packr_malloc(sizeof(void*) * MAX_BATCH_ROWS);
+            memset(cols[i].custom_data, 0, sizeof(void*) * MAX_BATCH_ROWS);
+            cols[i].custom_encoder = encode_json_blob;
         }
         cols[i].nulls = packr_malloc(MAX_BATCH_ROWS);
         memset(cols[i].nulls, 0, MAX_BATCH_ROWS); // Default Missing
@@ -305,7 +366,13 @@ static int try_encode_ultra_array(jparser_t *p, packr_encoder_t *enc) {
             
             // Parse Value
             char *val; size_t vlen;
-            t = next_token(p, &val, &vlen);
+            t = peek_token(p);
+            
+            if (t == J_OBJECT_START || t == J_ARRAY_START) {
+                 // Don't consume with next_token yet
+            } else {
+                 t = next_token(p, &val, &vlen);
+            }
             
             if (col_idx != -1) {
                 if (row_count >= MAX_BATCH_ROWS) { success = 0; break; }
@@ -336,6 +403,15 @@ static int try_encode_ultra_array(jparser_t *p, packr_encoder_t *enc) {
                 } else if (c->type == COL_TYPE_BOOL) {
                     if (t == J_TRUE) c->bools[row_count] = 1;
                     else if (t == J_FALSE) c->bools[row_count] = 0;
+                } else if (c->type == COL_TYPE_CUSTOM) {
+                    if (t == J_OBJECT_START || t == J_ARRAY_START) {
+                        packr_free(c->custom_data[row_count]);
+                        c->custom_data[row_count] = consume_json_object(p, &vlen);
+                    } else if (t == J_TRUE || t == J_FALSE || t == J_NUMBER || t == J_STRING) {
+                        // Unexpected scalar in custom column? treating as json blob
+                        // NOT SUPPORTED fully yet, we assume structural consistency
+                        if (t != J_OBJECT_START && t != J_ARRAY_START) next_token(p, &val, &vlen); // consume
+                    }
                 }
             }
             // Ignore extra fields not in discovered schema (unlikely given discovery)
@@ -367,6 +443,10 @@ static int try_encode_ultra_array(jparser_t *p, packr_encoder_t *enc) {
         } else if (cols[i].type == COL_TYPE_INT) packr_free(cols[i].ints);
         else if (cols[i].type == COL_TYPE_FLOAT) packr_free(cols[i].floats);
         else if (cols[i].type == COL_TYPE_BOOL) packr_free(cols[i].bools);
+        else if (cols[i].type == COL_TYPE_CUSTOM) {
+             for(int j=0; j<cols[i].count; j++) packr_free(cols[i].custom_data[j]);
+             packr_free(cols[i].custom_data);
+        }
         packr_free(cols[i].nulls);
     }
     

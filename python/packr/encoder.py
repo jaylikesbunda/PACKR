@@ -433,28 +433,28 @@ class PackrEncoder:
                 
                 i += 1
     
-    def _encode_string_column_rle(self, values: List[str]) -> None:
-        """Encode string column with RLE."""
+    def _encode_string_column_rle(self, values: list) -> None:
+        """Encode non-numeric column with RLE. Handles strings, bools, dicts, etc."""
         if not values:
             return
-        
+
         i = 0
         while i < len(values):
             value = values[i]
-            
+
             # Count run length
             run_length = 1
             while i + run_length < len(values) and values[i + run_length] == value:
                 run_length += 1
-            
-            # Emit value
-            self._encode_string(value)
-            
+
+            # Emit value using general encoder to handle all types
+            self._encode_value(value)
+
             # Emit RLE if beneficial
             if run_length > 1:
                 self._frame.add_token(bytes([ExtendedTokenType.RLE_REPEAT]))
                 self._frame.add_raw(encode_varint(run_length - 1))
-            
+
             i += run_length
     
     def _encode_field_def(self, name: str) -> int:

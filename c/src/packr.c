@@ -1019,7 +1019,7 @@ int packr_decode_next(packr_decoder_t *ctx, char **cursor, char *end) {
                     if (v == (double)(int64_t)v && (v < 2147483648.0 && v > -2147483648.0)) {
                          snprintf(temp, sizeof(temp), "%d", (int32_t)v);
                     }
-                    else snprintf(temp, sizeof(temp), "%.7g", v);
+                    else snprintf(temp, sizeof(temp), "%.17g", v);
                     buf_append_str(cursor, end, temp);
                 } else if (cols[c].strs[r]) {
                     buf_append_str(cursor, end, cols[c].strs[r]);

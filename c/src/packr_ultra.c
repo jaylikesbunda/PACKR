@@ -131,7 +131,7 @@ static void encode_numeric_column(packr_encoder_t *ctx, packr_column_t *col, siz
     // Values
     if (col->type == COL_TYPE_FLOAT) {
         double first = col->floats[0];
-        packr_encode_float(ctx, first);
+        packr_encode_double(ctx, first);
         
         if (col->count == 1) return;
         
@@ -390,7 +390,7 @@ static int encode_mfv_column(packr_encoder_t *ctx, packr_column_t *col) {
     
     // Write Mode Value
     if (col->type == COL_TYPE_INT) packr_encode_int(ctx, candidate_i);
-    else if (col->type == COL_TYPE_FLOAT) packr_encode_float(ctx, candidate_f);
+    else if (col->type == COL_TYPE_FLOAT) packr_encode_double(ctx, candidate_f);
     else if (col->type == COL_TYPE_STRING) packr_encode_string(ctx, candidate_s, strlen(candidate_s));
     else if (col->type == COL_TYPE_BOOL) packr_encode_bool(ctx, candidate_b);
     
@@ -420,7 +420,7 @@ static int encode_mfv_column(packr_encoder_t *ctx, packr_column_t *col) {
         
         if (!match) {
             if (col->type == COL_TYPE_INT) packr_encode_int(ctx, col->ints[i]);
-            else if (col->type == COL_TYPE_FLOAT) packr_encode_float(ctx, col->floats[i]);
+            else if (col->type == COL_TYPE_FLOAT) packr_encode_double(ctx, col->floats[i]);
             else if (col->type == COL_TYPE_STRING) packr_encode_string(ctx, col->strings[i], strlen(col->strings[i]));
             else if (col->type == COL_TYPE_BOOL) packr_encode_bool(ctx, col->bools[i]);
         }
@@ -479,6 +479,12 @@ void packr_encode_ultra_columns(packr_encoder_t *ctx, int row_count, int col_cou
                 flags |= 0x04; // RLE
             }
         }
+        if (col->type == COL_TYPE_CUSTOM) {
+             flags = 0; // Reset flags, CUSTOM uses simple loop usually
+             if (has_nulls) flags |= 0x08;
+             // Custom columns don't use the standard compressions (yet)
+             // We could implement RLE if we had a comparator, but for now linear
+        }
         packr_encode_token(ctx, (packr_token_t)flags);
     }
     
@@ -525,7 +531,7 @@ void packr_encode_ultra_columns(packr_encoder_t *ctx, int row_count, int col_cou
                  if (val == (double)(int32_t)val) {
                      packr_encode_int(ctx, (int32_t)val);
                  } else {
-                     packr_encode_float(ctx, val);
+                     packr_encode_double(ctx, val);
                  }
              } else {
                  if (!encode_mfv_column(ctx, col)) {
@@ -588,6 +594,15 @@ void packr_encode_ultra_columns(packr_encoder_t *ctx, int row_count, int col_cou
                      }
                  }
              }
+        }
+        else if (col->type == COL_TYPE_CUSTOM) {
+            if (col->custom_encoder) {
+                for(size_t j=0; j<col->count; j++) {
+                     if (col->custom_encoder(ctx, col->custom_data[j]) != 0) {
+                         // Error handling?
+                     }
+                }
+            }
         }
     }
 }
