@@ -1,4 +1,4 @@
-# PACKR
+# PACKR (WIP)
 
 structural telemetry compression for embedded systems.
 
