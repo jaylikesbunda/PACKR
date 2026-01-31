@@ -99,20 +99,39 @@ size_t packr_lz77_decompress(const uint8_t *in, size_t in_len, uint8_t *out, siz
 }
 
 // 4-byte hash
-#define HASH_MASK 0xFFF // 4096 entries -> 8KB
+#define HASH_MASK 0xFFF // 4096 entries
 #define WINDOW_SIZE 8192
 
 typedef struct {
-    uint16_t head[4096];
-    uint16_t prev[WINDOW_SIZE];
-} lz77_hash_t;
+    uint32_t head[4096];        // 16KB - absolute positions, 0 = empty
+    uint16_t prev[WINDOW_SIZE]; // 16KB - chain links within window
+} lz77_hash_t;                  // 32KB total
+
+#define LZ77_NO_ENTRY 0
+
+// Hash helper: XOR-fold for better distribution across 4096 buckets
+static inline uint32_t lz77_hash4(const uint8_t *p) {
+    uint32_t h = p[0] | (p[1] << 8) | (p[2] << 16) | (p[3] << 24);
+    h *= 0x1e35a7bd;
+    return (h ^ (h >> 16)) & HASH_MASK;
+}
+
+// Insert position into hash table (positions stored as pos+1, 0=empty)
+static inline void lz77_hash_insert(lz77_hash_t *ht, const uint8_t *in, size_t pos, size_t in_len) {
+    if (pos + 3 < in_len) {
+        uint32_t h = lz77_hash4(in + pos);
+        uint32_t old_head = ht->head[h];
+        ht->prev[pos % WINDOW_SIZE] = (uint16_t)old_head; // truncated for chain
+        ht->head[h] = (uint32_t)(pos + 1); // +1 so 0 means empty
+    }
+}
 
 size_t packr_lz77_compress(const uint8_t *in, size_t in_len, uint8_t *out, size_t out_cap) {
     if (in_len == 0) return 0;
-    
+
     uint8_t *op = out;
     uint8_t *op_end = out + out_cap;
-    
+
     // Header
     if (op_end - op < 5) return 0;
     *op++ = 0x02;
@@ -121,55 +140,74 @@ size_t packr_lz77_compress(const uint8_t *in, size_t in_len, uint8_t *out, size_
     *op++ = (in_len >> 8) & 0xFF;
     *op++ = (in_len >> 16) & 0xFF;
     *op++ = (in_len >> 24) & 0xFF;
-    
+
+    // Entropy pre-check: skip LZ77 for high-entropy data
+    {
+        size_t sample = (in_len < 1024) ? in_len : 1024;
+        uint8_t seen[256] = {0};
+        size_t unique = 0;
+        for (size_t i = 0; i < sample; i++) {
+            if (!seen[in[i]]) { seen[in[i]] = 1; unique++; }
+        }
+        if (unique * 100 / sample > 80) {
+            // High entropy, store uncompressed
+            if (in_len + 5 <= out_cap) {
+                out[0] = 0x00;
+                out[1] = in_len & 0xFF;
+                out[2] = (in_len >> 8) & 0xFF;
+                out[3] = (in_len >> 16) & 0xFF;
+                out[4] = (in_len >> 24) & 0xFF;
+                memcpy(out + 5, in, in_len);
+                return in_len + 5;
+            }
+            return 0;
+        }
+    }
+
     lz77_hash_t *ht = calloc(1, sizeof(lz77_hash_t));
     if (!ht) return 0;
-    
+
     size_t ip = 0;
     size_t anchor = 0;
-    
+
     while (ip < in_len) {
         size_t best_len = 0;
         size_t best_off = 0;
-        
+
         // Hash check
         if (ip + 3 < in_len) {
-            uint32_t h = (in[ip] | (in[ip+1] << 8) | (in[ip+2] << 16) | (in[ip+3] << 24));
-            // Mix
-            h = (h * 0x1e35a7bd) >> 16; 
-            h &= HASH_MASK;
+            uint32_t h = lz77_hash4(in + ip);
             
-            // Find match
-            size_t match_pos = ht->head[h];
-            // Update head
-            ht->prev[ip % WINDOW_SIZE] = match_pos;
-            ht->head[h] = ip;
-            
-            size_t curr_match = match_pos;
+            // Find match - head stores pos+1 (0 = empty)
+            uint32_t stored = ht->head[h];
+            // Insert current position into hash
+            lz77_hash_insert(ht, in, ip, in_len);
+
             int chain_len = 32;
-            
-             while (curr_match != 0 && chain_len-- > 0) {
-                 // Check distance
-                 if (ip <= curr_match) break; // Should not happen
-                 size_t dist = ip - curr_match;
-                 if (dist > WINDOW_SIZE) break;
-                 if (dist == 0) break;
-                 
-                 size_t len = 0;
-                 while (ip + len < in_len && in[ip + len] == in[curr_match + len]) {
-                     len++;
-                     if (len >= 258) break; // Cap
-                 }
-                 
-                 if (len >= 3 && len > best_len) {
-                     best_len = len;
-                     best_off = dist;
-                     if (len >= 32) break; // Sufficient
-                 }
-                 
-                 // Move to next in chain
-                 curr_match = ht->prev[curr_match % WINDOW_SIZE];
-             }
+            uint32_t chain_val = stored; // pos+1 format
+
+            while (chain_val != 0 && chain_len-- > 0) {
+                size_t curr_match = (size_t)(chain_val - 1);
+                // Check distance
+                if (ip <= curr_match) break;
+                size_t dist = ip - curr_match;
+                if (dist > WINDOW_SIZE) break;
+
+                size_t len = 0;
+                while (ip + len < in_len && in[ip + len] == in[curr_match + len]) {
+                    len++;
+                    if (len >= 258) break; // Cap
+                }
+
+                if (len >= 3 && len > best_len) {
+                    best_len = len;
+                    best_off = dist;
+                    if (len >= 32) break; // Sufficient
+                }
+
+                // Follow chain via prev array (stores pos+1 truncated to 16 bits)
+                chain_val = (uint32_t)ht->prev[curr_match % WINDOW_SIZE];
+            }
         }
         
         // Determine if we encode match
@@ -211,7 +249,16 @@ size_t packr_lz77_compress(const uint8_t *in, size_t in_len, uint8_t *out, size_
                 *op++ = best_off & 0xFF;
                 *op++ = (best_off >> 8) & 0xFF;
             }
-            
+
+            // Hash-fill: insert hash entries for all positions within the match
+            // This allows future matches to reference positions inside this match
+            {
+                size_t match_end = ip + best_len;
+                for (size_t j = ip + 1; j < match_end; j++) {
+                    lz77_hash_insert(ht, in, j, in_len);
+                }
+            }
+
             // Advance
             ip += best_len;
             anchor = ip;
