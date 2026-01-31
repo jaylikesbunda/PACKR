@@ -14,6 +14,39 @@
 /* MFV Helper */
 static int encode_mfv_column(packr_encoder_t *ctx, packr_column_t *col);
 
+/* Float Viability Check */
+static int check_float_delta_viability(packr_column_t *col) {
+    if (col->count < 2) return 1;
+    double prev = col->floats[0];
+    
+    for (size_t i = 1; i < col->count; i++) {
+        double v = col->floats[i];
+        
+        /* Calculate Delta */
+        double exact_delta = v - prev;
+        int32_t quantized_delta = (int32_t)rint(exact_delta * 65536.0);
+        
+        /* Check Overflow */
+        if (exact_delta * 65536.0 > 2147483647.0 || exact_delta * 65536.0 < -2147483648.0) {
+            return 0; // Overflow
+        }
+        
+        /* Check Precision Loss */
+        double reconstructed_delta = (double)quantized_delta / 65536.0;
+        double reconstructed_v = prev + reconstructed_delta;
+        
+        double err = reconstructed_v - v;
+        if (err < 0) err = -err;
+        
+        if (err > 0.000001) { // Tolerance
+             return 0;
+        }
+        
+        prev = reconstructed_v;
+    }
+    return 1;
+}
+
 typedef struct {
     uint8_t *buf;
     size_t cap;
@@ -430,10 +463,10 @@ static int encode_mfv_column(packr_encoder_t *ctx, packr_column_t *col) {
 }
 
 // Public API
-void packr_encode_ultra_columns(packr_encoder_t *ctx, int row_count, int col_count, char **field_names, packr_column_t *columns) {
-    if (row_count == 0) return;
+int packr_encode_ultra_columns(packr_encoder_t *ctx, int row_count, int col_count, char **field_names, packr_column_t *columns, int partial) {
+    if (row_count == 0) return 0;
     
-    packr_encode_token(ctx, TOKEN_ULTRA_BATCH);
+    packr_encode_token(ctx, partial ? TOKEN_BATCH_PARTIAL : TOKEN_ULTRA_BATCH);
     packr_encode_varint(ctx, row_count);
     packr_encode_varint(ctx, col_count);
 
@@ -473,8 +506,14 @@ void packr_encode_ultra_columns(packr_encoder_t *ctx, int row_count, int col_cou
         if (is_constant) {
             flags |= 0x01; // CONSTANT
         } else {
-            if (col->type == COL_TYPE_INT || col->type == COL_TYPE_FLOAT) {
+            if (col->type == COL_TYPE_INT) {
                 flags |= 0x02; // ALL_DELTA
+            } else if (col->type == COL_TYPE_FLOAT) {
+                 if (check_float_delta_viability(col)) {
+                     flags |= 0x02; // ALL_DELTA
+                 } else {
+                     flags |= 0x04; // RLE (Exact Double Fallback)
+                 }
             } else {
                 flags |= 0x04; // RLE
             }
@@ -535,7 +574,26 @@ void packr_encode_ultra_columns(packr_encoder_t *ctx, int row_count, int col_cou
                  }
              } else {
                  if (!encode_mfv_column(ctx, col)) {
-                     encode_numeric_column(ctx, col, i);
+                     if (check_float_delta_viability(col)) {
+                         encode_numeric_column(ctx, col, i);
+                     } else {
+                        // RLE Fallback for Exact Doubles
+                        size_t j = 0;
+                        while (j < col->count) {
+                            double curr = col->floats[j];
+                            size_t run = 1;
+                            while (j + run < col->count && col->floats[j+run] == curr) {
+                                run++;
+                            }
+                            
+                            packr_encode_double(ctx, curr);
+                            if (run > 1) {
+                                packr_encode_token(ctx, TOKEN_RLE_REPEAT);
+                                packr_encode_varint(ctx, run - 1);
+                            }
+                            j += run;
+                        }
+                     }
                  }
              }
         }
@@ -599,10 +657,11 @@ void packr_encode_ultra_columns(packr_encoder_t *ctx, int row_count, int col_cou
             if (col->custom_encoder) {
                 for(size_t j=0; j<col->count; j++) {
                      if (col->custom_encoder(ctx, col->custom_data[j]) != 0) {
-                         // Error handling?
+                         return -1;
                      }
                 }
             }
         }
     }
+    return 0;
 }

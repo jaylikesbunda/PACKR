@@ -3,6 +3,7 @@
  */
 
 #include "packr.h"
+#include "packr_platform.h"
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
@@ -53,13 +54,16 @@ static void make_crc_table(void) {
     crc32_table_inited = 1;
 }
 
-static uint32_t calculate_crc32(const uint8_t *data, size_t len) {
+static uint32_t update_crc32(uint32_t crc, const uint8_t *data, size_t len) {
     if (!crc32_table_inited) make_crc_table();
-    uint32_t crc = 0xFFFFFFFF;
     for (size_t i = 0; i < len; i++) {
         crc = (crc >> 8) ^ crc32_table[(crc ^ data[i]) & 0xFF];
     }
-    return crc ^ 0xFFFFFFFF;
+    return crc;
+}
+
+static uint32_t calculate_crc32(const uint8_t *data, size_t len) {
+    return update_crc32(0xFFFFFFFF, data, len) ^ 0xFFFFFFFF;
 }
 
 /* Helpers */
@@ -69,17 +73,48 @@ uint32_t zigzag_encode(int32_t value) {
     return (uint32_t)((value << 1) ^ (value >> 31));
 }
 
-static int buffer_append(packr_encoder_t *ctx, const uint8_t *data, size_t len) {
-    if (ctx->pos + len > ctx->capacity) return -1;
-    memcpy(ctx->buffer + ctx->pos, data, len);
-    ctx->pos += len;
+static int packr_flush_buffer(packr_encoder_t *ctx);
+
+static int buffer_append_internal(packr_encoder_t *ctx, const uint8_t *data, size_t len, int update_crc) {
+    if (update_crc && ctx->flush_cb) {
+        // Only rolling update CRC in Streaming Mode
+        if (ctx->compress) {
+             // If compressing, CRC happens BEFORE compression?
+             // Python spec check: `calculate_crc32(ctx->buffer, frame_len)` on the UNCOMPRESSED data?
+             // Legacy `packr_encoder_finish`: `crc = calculate_crc32(ctx->buffer, frame_len)`.
+             // `buffer` here IS uncompressed.
+             // Then compression happens on `buffer`.
+             // Correct. CRC is on plaintext.
+        }
+        ctx->current_crc = update_crc32(ctx->current_crc, data, len);
+    }
+    
+    // Check if buffer is valid
+    if (!ctx->buffer || ctx->capacity == 0) return -1;
+
+    size_t offset = 0;
+    while (offset < len) {
+        size_t space = ctx->capacity - ctx->pos;
+        if (space == 0) {
+             if (packr_flush_buffer(ctx) != 0) return -1;
+             space = ctx->capacity - ctx->pos;
+        }
+        
+        size_t chunk = (len - offset) < space ? (len - offset) : space;
+        
+        memcpy(ctx->buffer + ctx->pos, data + offset, chunk);
+        ctx->pos += chunk;
+        offset += chunk;
+    }
     return 0;
 }
 
+static int buffer_append(packr_encoder_t *ctx, const uint8_t *data, size_t len) {
+    return buffer_append_internal(ctx, data, len, 1);
+}
+
 static int buffer_append_byte(packr_encoder_t *ctx, uint8_t b) {
-    if (ctx->pos + 1 > ctx->capacity) return -1;
-    ctx->buffer[ctx->pos++] = b;
-    return 0;
+    return buffer_append(ctx, &b, 1);
 }
 
 /* Varint */
@@ -152,17 +187,46 @@ static int dict_get_or_add(packr_dict_t *dict, const char *value, size_t len, in
 
 /* Encoder */
 
-void packr_encoder_init(packr_encoder_t *ctx, uint8_t *buffer, size_t capacity) {
+void packr_encoder_init(packr_encoder_t *ctx, packr_flush_func flush_cb, void *user_data, uint8_t *work_buffer, size_t work_cap) {
     memset(ctx, 0, sizeof(packr_encoder_t));
-    ctx->buffer = buffer;
-    ctx->capacity = capacity;
-    /* Header size: Magic(4) + Ver(1) + Flags(1) + SymCnt(varint) */
-    ctx->pos = 11; 
-    ctx->total_alloc = sizeof(packr_encoder_t);
+    ctx->buffer = work_buffer;
+    ctx->capacity = work_cap;
+    ctx->flush_cb = flush_cb;
+    ctx->user_data = user_data;
+    ctx->current_crc = 0xFFFFFFFF;
     
+    ctx->total_alloc = sizeof(packr_encoder_t);
     dict_init(&ctx->fields);
     dict_init(&ctx->strings);
     dict_init(&ctx->macs);
+    
+    if (ctx->flush_cb) {
+        /* Streaming Mode: Write Header Immediately */
+        if (ctx->compress) {
+            packr_lz77_init(&ctx->lz77);
+        
+            // Emit LZ77 Header
+            uint8_t lz_head[7];
+            lz_head[0] = 0xFE; 
+            lz_head[1] = 0x03;
+            // Length unknown/max
+            lz_head[3] = 0xFF; lz_head[4] = 0xFF; lz_head[5] = 0xFF; lz_head[6] = 0xFF;
+            
+            ctx->flush_cb(ctx->user_data, lz_head, 7);
+        }
+        
+        ctx->pos = 0;
+        uint8_t header[16];
+        int h_pos = 0;
+        header[h_pos++] = 0x50; header[h_pos++] = 0x4B; header[h_pos++] = 0x52; header[h_pos++] = 0x31;
+        header[h_pos++] = PACKR_VERSION;
+        header[h_pos++] = 0x00; // Flags
+        header[h_pos++] = 0x00; // Symbol Count (Varint 0 = 1 byte)
+        buffer_append(ctx, header, h_pos);
+    } else {
+        /* Legacy Mode: Reserve Header Space */
+        ctx->pos = 11; 
+    }
 }
 
 static void dict_destroy(packr_dict_t *dict, size_t *alloc_counter) {
@@ -179,6 +243,7 @@ void packr_encoder_destroy(packr_encoder_t *ctx) {
     dict_destroy(&ctx->fields, &ctx->total_alloc);
     dict_destroy(&ctx->strings, &ctx->total_alloc);
     dict_destroy(&ctx->macs, &ctx->total_alloc);
+    if (ctx->compress) packr_lz77_destroy(&ctx->lz77);
     ctx->total_alloc -= sizeof(packr_encoder_t);
 }
 
@@ -307,74 +372,127 @@ int packr_encode_mac(packr_encoder_t *ctx, const char *str) {
 }
 
 
-size_t packr_encoder_finish(packr_encoder_t *ctx, uint8_t *out_buffer) {
-    /* Construct Header */
-    uint8_t header[16];
-    int h_pos = 0;
+static int packr_flush_buffer(packr_encoder_t *ctx) {
+    if (ctx->pos == 0) return 0;
     
-    /* Magic */
-    header[h_pos++] = 0x50; /* P */
-    header[h_pos++] = 0x4B; /* K */
-    header[h_pos++] = 0x52; /* R */
-    header[h_pos++] = 0x31; /* 1 */
-    
-    /* Version */
-    header[h_pos++] = PACKR_VERSION;
-    
-    /* Flags */
-    header[h_pos++] = 0x00;
-    
-    /* Symbol Count */
-    uint8_t varint[5];
-    uint32_t val = ctx->symbol_count;
-    int v_len = 0;
-    while (val > 0x7F) {
-        varint[v_len++] = (val & 0x7F) | 0x80;
-        val >>= 7;
+    if (ctx->flush_cb) {
+        // Streaming
+        if (ctx->compress) {
+            // Push via LZ77
+            return packr_lz77_compress_stream(&ctx->lz77, ctx->buffer, ctx->pos, 
+                                              ctx->flush_cb, ctx->user_data, 0); // Flush=0 (accumulate)
+        } else {
+             int ret = ctx->flush_cb(ctx->user_data, ctx->buffer, ctx->pos);
+             if (ret != 0) return ret;
+        }
+    } else {
+        // Fixed Buffer Mode - Overflow
+        return -1;
     }
-    varint[v_len++] = val & 0x7F;
-    memcpy(header + h_pos, varint, v_len);
-    h_pos += v_len;
     
-    /* Move body data to directly after header */
-    size_t body_len = ctx->pos - 11;
-    memmove(ctx->buffer + h_pos, ctx->buffer + 11, body_len);
-    
-    /* Copy header */
-    memcpy(ctx->buffer, header, h_pos);
-    
-    size_t frame_len = h_pos + body_len;
-    
-    /* CRC (Before compression, per Python spec) */
-    uint32_t crc = calculate_crc32(ctx->buffer, frame_len);
-    ctx->buffer[frame_len++] = crc & 0xFF;
-    ctx->buffer[frame_len++] = (crc >> 8) & 0xFF;
-    ctx->buffer[frame_len++] = (crc >> 16) & 0xFF;
-    ctx->buffer[frame_len++] = (crc >> 24) & 0xFF;
-    
-    /* Compress? */
-    /* Only if size > 20 per Python */
-    if (ctx->compress && frame_len > 20) {
-        // Try compression
-        uint8_t *comp_buf = packr_malloc(frame_len + 128);
-        if (comp_buf) {
-            size_t comp_len = packr_lz77_compress(ctx->buffer, frame_len, comp_buf, frame_len + 128);
+    ctx->pos = 0;
+    return 0;
+}
+
+size_t packr_encoder_finish(packr_encoder_t *ctx, uint8_t *out_buffer) {
+    if (ctx->flush_cb) {
+        // --- Streaming Mode ---
+        packr_flush_buffer(ctx); // Flush any pending payload
+        
+        uint32_t final_crc = ctx->current_crc ^ 0xFFFFFFFF;
+        uint8_t crc_buf[4];
+        packr_store_le32(crc_buf, final_crc);
+        
+        // Append CRC raw (do not update CRC with CRC itself)
+        buffer_append_internal(ctx, crc_buf, 4, 0);
+        
+        // Flush Final (CRC) 
+        packr_flush_buffer(ctx);
+        
+        // Final LZ77 Flush
+        if (ctx->compress) {
+            packr_lz77_compress_stream(&ctx->lz77, NULL, 0, ctx->flush_cb, ctx->user_data, 1); // Flush=1
+        }
+        
+        return 0; // Length undefined for streaming
+    } else {
+        // --- Legacy/Buffered Mode ---
+        /* Construct Header */
+        uint8_t header[16];
+        int h_pos = 0;
+        
+        /* Magic */
+        header[h_pos++] = 0x50; header[h_pos++] = 0x4B; header[h_pos++] = 0x52; header[h_pos++] = 0x31;
+        header[h_pos++] = PACKR_VERSION;
+        header[h_pos++] = 0x00;
+        
+        /* Symbol Count */
+        uint8_t varint[5];
+        uint32_t val = ctx->symbol_count;
+        int v_len = 0;
+        while (val > 0x7F) {
+            varint[v_len++] = (val & 0x7F) | 0x80;
+            val >>= 7;
+        }
+        varint[v_len++] = val & 0x7F;
+        memcpy(header + h_pos, varint, v_len);
+        h_pos += v_len;
+        
+        /* Move body data to directly after header */
+        size_t body_len = ctx->pos - 11;
+        memmove(ctx->buffer + h_pos, ctx->buffer + 11, body_len);
+        
+        /* Copy header */
+        memcpy(ctx->buffer, header, h_pos);
+        
+        size_t frame_len = h_pos + body_len;
+        
+        /* CRC (Full Calculation) */
+        uint32_t crc = calculate_crc32(ctx->buffer, frame_len);
+        ctx->buffer[frame_len++] = crc & 0xFF;
+        ctx->buffer[frame_len++] = (crc >> 8) & 0xFF;
+        ctx->buffer[frame_len++] = (crc >> 16) & 0xFF;
+        ctx->buffer[frame_len++] = (crc >> 24) & 0xFF;
+        
+        /* Compress? */
+        if (ctx->compress && frame_len > 20) {
+            uint8_t *comp_buf = NULL;
+            int using_internal_buf = 0;
             
-            if (comp_len > 0 && comp_len < frame_len) {
-                // Use compressed
-                // Prepend 0xFE marker + 0x03 Transform Flag
-                if (comp_len + 2 <= ctx->capacity) {
-                     ctx->buffer[0] = 0xFE;
-                     ctx->buffer[1] = 0x03; // LZ77 Transform
-                     memcpy(ctx->buffer + 2, comp_buf, comp_len);
-                     frame_len = comp_len + 2;
+            /* Try to use the remaining space in the buffer as scratchpad */
+            if (ctx->capacity > frame_len && (ctx->capacity - frame_len) >= (frame_len + 128)) {
+                comp_buf = ctx->buffer + frame_len;
+                using_internal_buf = 1;
+            } else {
+                comp_buf = packr_malloc(frame_len + 128);
+            }
+
+            if (comp_buf) {
+                size_t comp_len = packr_lz77_compress(ctx->buffer, frame_len, comp_buf, frame_len + 128);
+                
+                if (comp_len > 0 && comp_len < frame_len) {
+                    if (comp_len + 2 <= ctx->capacity) {
+                         /* Move compressed data to front */
+                         if (using_internal_buf) {
+                             memmove(ctx->buffer + 2, comp_buf, comp_len);
+                         } else {
+                             memcpy(ctx->buffer + 2, comp_buf, comp_len);
+                         }
+                         
+                         ctx->buffer[0] = 0xFE;
+                         ctx->buffer[1] = 0x03; // LZ77 Transform
+                         frame_len = comp_len + 2;
+                    }
+                }
+                
+                if (!using_internal_buf) {
+                    packr_free(comp_buf);
                 }
             }
-            packr_free(comp_buf);
         }
+        
+        return frame_len;
     }
-    
-    return frame_len;
 }
 
 /* Decoder (Minimal for validation) */
@@ -685,6 +803,17 @@ int packr_decode_next(packr_decoder_t *ctx, char **cursor, char *end) {
         if (ctx->pos < ctx->size && ctx->data[ctx->pos] == TOKEN_ARRAY_END) ctx->pos++;
         buf_append_char(cursor, end, ']');
     }
+    else if (token == TOKEN_ARRAY_STREAM) {
+        buf_append_char(cursor, end, '[');
+        bool first = true;
+        while (ctx->pos < ctx->size && ctx->data[ctx->pos] != TOKEN_ARRAY_END) {
+            if (!first) buf_append_char(cursor, end, ',');
+            if (!packr_decode_next(ctx, cursor, end)) break;
+            first = false;
+        }
+        if (ctx->pos < ctx->size) ctx->pos++; // Skip END
+        buf_append_char(cursor, end, ']');
+    }
     else if (token == TOKEN_OBJECT_START) {
         buf_append_char(cursor, end, '{');
         bool first = true;
@@ -711,7 +840,8 @@ int packr_decode_next(packr_decoder_t *ctx, char **cursor, char *end) {
         if (ctx->pos < ctx->size) ctx->pos++; /* Skip END */
         buf_append_char(cursor, end, '}');
     }
-    else if (token == TOKEN_ULTRA_BATCH) {
+    else if (token == TOKEN_ULTRA_BATCH || token == TOKEN_BATCH_PARTIAL) {
+        bool partial = (token == TOKEN_BATCH_PARTIAL);
         int bytes_read;
         uint32_t record_count = decode_varint(ctx, &bytes_read);
         uint32_t field_count = decode_varint(ctx, &bytes_read);
@@ -999,7 +1129,8 @@ int packr_decode_next(packr_decoder_t *ctx, char **cursor, char *end) {
         }
         
         /* Reconstruct JSON */
-        buf_append_char(cursor, end, '[');
+        if (!partial) buf_append_char(cursor, end, '[');
+        
         for(uint32_t r=0; r<record_count; r++) {
             if (r > 0) buf_append_char(cursor, end, ',');
             buf_append_char(cursor, end, '{');
@@ -1029,7 +1160,7 @@ int packr_decode_next(packr_decoder_t *ctx, char **cursor, char *end) {
             }
             buf_append_char(cursor, end, '}');
         }
-        buf_append_char(cursor, end, ']');
+        if (!partial) buf_append_char(cursor, end, ']');
         
         /* Free memory */
         for(uint32_t i=0; i<field_count; i++) {

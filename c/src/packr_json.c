@@ -128,7 +128,11 @@ static char* consume_json_object(jparser_t *p, size_t *out_len) {
         char cur = p->json[p->pos];
         
         if (in_quote) {
-            if (cur == '"' && p->json[p->pos-1] != '\\') in_quote = 0;
+            if (cur == '\\') {
+                p->pos++; // Skip escaped char
+            } else if (cur == '"') {
+                in_quote = 0;
+            }
         } else {
             if (cur == '"') in_quote = 1;
             else if (cur == '{' || cur == '[') depth++;
@@ -140,6 +144,7 @@ static char* consume_json_object(jparser_t *p, size_t *out_len) {
                     char *res = packr_malloc(*out_len + 1);
                     memcpy(res, p->json + start, *out_len);
                     res[*out_len] = 0;
+                    printf("ALLOC_BLOB %p\n", res);
                     return res;
                 }
             }
@@ -148,6 +153,8 @@ static char* consume_json_object(jparser_t *p, size_t *out_len) {
     }
     return NULL;
 }
+
+
 
 /* Custom Encoder Callback */
 static int encode_json_blob(packr_encoder_t *ctx, void *data) {
@@ -183,7 +190,7 @@ static int encode_object(jparser_t *p, packr_encoder_t *enc) {
         if (klen >= 256) klen = 255;
         memcpy(kbuf, key, klen);
         kbuf[klen] = 0;
-        packr_encode_field(enc, kbuf, klen);
+        if (packr_encode_field(enc, kbuf, klen) != 0) return -1;
         
         if (next_token(p, &d1, &d2) != J_COLON) return -1;
         
@@ -204,18 +211,32 @@ static int encode_object(jparser_t *p, packr_encoder_t *enc) {
 
 #include "packr_ultra.h"
 
-#define MAX_BATCH_ROWS 2048
+#define MAX_BATCH_ROWS 128
 #define MAX_BATCH_COLS 32
+
+/* Helper to skip any JSON value */
+static void skip_json_value(jparser_t *p) {
+    char *s; size_t sl;
+    jtoken_type_t t = peek_token(p);
+    if (t == J_OBJECT_START || t == J_ARRAY_START) {
+        size_t len;
+        char *blob = consume_json_object(p, &len);
+        printf("FREE_DIRECT %p\n", blob);
+        packr_free(blob);
+    } else {
+        next_token(p, &s, &sl);
+    }
+}
 
 static int try_encode_ultra_array(jparser_t *p, packr_encoder_t *enc) {
     size_t save = p->pos;
     char *s; size_t sl;
-    if (next_token(p, &s, &sl) != J_ARRAY_START) return -1;
+    if (next_token(p, &s, &sl) != J_ARRAY_START) return 1; // Soft fail
     
     // 2. Check if empty
     jtoken_type_t t = peek_token(p);
-    if (t == J_ARRAY_END) return -1; 
-    if (t != J_OBJECT_START) return -1;
+    if (t == J_ARRAY_END) return 1; 
+    if (t != J_OBJECT_START) return 1;
     
     // 3. Schema Discovery (Union of all keys in batch)
     char *fields[MAX_BATCH_COLS];
@@ -258,6 +279,7 @@ static int try_encode_ultra_array(jparser_t *p, packr_encoder_t *enc) {
             if (t == J_OBJECT_START || t == J_ARRAY_START) {
                 new_type = COL_TYPE_CUSTOM;
                 char *blob = consume_json_object(&scan_p, &vl);
+                printf("FREE_SCAN %p\n", blob);
                 packr_free(blob); // Just scanning, discard data
             } else {
                 t = next_token(&scan_p, &v, &vl); // Consume scalar
@@ -283,9 +305,6 @@ static int try_encode_ultra_array(jparser_t *p, packr_encoder_t *enc) {
                  if (types[found] == COL_TYPE_INT && new_type == COL_TYPE_FLOAT) {
                      types[found] = COL_TYPE_FLOAT;
                  }
-                 // Upgrade to CUSTOM if mixed types found?
-                 // For now, if we see an object where we expected int, we have a schema conflict.
-                 // Ultra Batch doesn't handle schema evolution perfectly yet.
             }
             
             t = peek_token(&scan_p);
@@ -296,7 +315,14 @@ static int try_encode_ultra_array(jparser_t *p, packr_encoder_t *enc) {
         scan_rows++;
     }
     
-    if (col_count == 0 || scan_rows == 0) return -1;
+    if (col_count == 0 || scan_rows == 0) {
+        for(int i=0; i<col_count; i++) packr_free(fields[i]);
+        return 1;
+    }
+    if (scan_rows < 4) {
+        for(int i=0; i<col_count; i++) packr_free(fields[i]);
+        return 1; // Fallback for small arrays to avoid Ultra Batch overhead/bugs
+    }
 
     // 4. Parse Rows using Discovered Schema
     packr_column_t cols[MAX_BATCH_COLS];
@@ -304,32 +330,38 @@ static int try_encode_ultra_array(jparser_t *p, packr_encoder_t *enc) {
         cols[i].type = types[i];
         cols[i].count = 0;
         if (types[i] == COL_TYPE_INT) {
-            cols[i].ints = packr_malloc(sizeof(int32_t) * MAX_BATCH_ROWS);
-            memset(cols[i].ints, 0, sizeof(int32_t) * MAX_BATCH_ROWS); // Default 0
+            cols[i].ints = packr_malloc(sizeof(int32_t) * scan_rows);
+            memset(cols[i].ints, 0, sizeof(int32_t) * scan_rows); // Default 0
         }
         else if (types[i] == COL_TYPE_FLOAT) {
-            cols[i].floats = packr_malloc(sizeof(double) * MAX_BATCH_ROWS);
-            memset(cols[i].floats, 0, sizeof(double) * MAX_BATCH_ROWS); // Default 0.0
+            cols[i].floats = packr_malloc(sizeof(double) * scan_rows);
+            memset(cols[i].floats, 0, sizeof(double) * scan_rows); // Default 0.0
         }
         else if (types[i] == COL_TYPE_STRING) {
-            cols[i].strings = packr_malloc(sizeof(char*) * MAX_BATCH_ROWS);
+            cols[i].strings = packr_malloc(sizeof(char*) * scan_rows);
+            memset(cols[i].strings, 0, sizeof(char*) * scan_rows);
             // Default "" - handled in loop
         }
         else if (types[i] == COL_TYPE_BOOL) {
-            cols[i].bools = packr_malloc(sizeof(uint8_t) * MAX_BATCH_ROWS);
-            memset(cols[i].bools, 0, sizeof(uint8_t) * MAX_BATCH_ROWS); // Default False
+            cols[i].bools = packr_malloc(sizeof(uint8_t) * scan_rows);
+            memset(cols[i].bools, 0, sizeof(uint8_t) * scan_rows); // Default False
         }
         else if (types[i] == COL_TYPE_CUSTOM) {
-            cols[i].custom_data = packr_malloc(sizeof(void*) * MAX_BATCH_ROWS);
-            memset(cols[i].custom_data, 0, sizeof(void*) * MAX_BATCH_ROWS);
+            cols[i].custom_data = packr_malloc(sizeof(void*) * scan_rows);
+            memset(cols[i].custom_data, 0, sizeof(void*) * scan_rows);
             cols[i].custom_encoder = encode_json_blob;
         }
-        cols[i].nulls = packr_malloc(MAX_BATCH_ROWS);
-        memset(cols[i].nulls, 0, MAX_BATCH_ROWS); // Default Missing
+        cols[i].nulls = packr_malloc(scan_rows);
+        memset(cols[i].nulls, 0, scan_rows); // Default Missing
     }
     
     int row_count = 0;
     int success = 1;
+    int is_streaming = 0;
+    
+    // Dynamic Flush Tracking
+    size_t current_batch_size = 0;
+    const size_t MAX_BATCH_BYTES = 4096;
     
     // Reset parser
     p->pos = save;
@@ -365,56 +397,51 @@ static int try_encode_ultra_array(jparser_t *p, packr_encoder_t *enc) {
             if (next_token(p, &s, &sl) != J_COLON) { success = 0; break; }
             
             // Parse Value
-            char *val; size_t vlen;
-            t = peek_token(p);
-            
-            if (t == J_OBJECT_START || t == J_ARRAY_START) {
-                 // Don't consume with next_token yet
-            } else {
-                 t = next_token(p, &val, &vlen);
-            }
+            char *val = NULL; size_t vlen = 0;
             
             if (col_idx != -1) {
-                if (row_count >= MAX_BATCH_ROWS) { success = 0; break; }
-                
                 packr_column_t *c = &cols[col_idx];
                 
                 // Mark valid
                 c->nulls[row_count] = 1;
                 
-                // Conversions
-                if (c->type == COL_TYPE_INT) {
-                    if (t == J_NUMBER) {
+                t = peek_token(p);
+                if (c->type == COL_TYPE_CUSTOM) {
+                     if (t == J_OBJECT_START || t == J_ARRAY_START) {
+                         packr_free(c->custom_data[row_count]);
+                         size_t blob_len = 0;
+                         c->custom_data[row_count] = consume_json_object(p, &blob_len);
+                         current_batch_size += blob_len;
+                     } else {
+                         next_token(p, &val, &vlen); // Consume unexpected scalar
+                     }
+                } else if (c->type == COL_TYPE_STRING) {
+                     next_token(p, &val, &vlen);
+                     if (c->strings[row_count]) packr_free(c->strings[row_count]);
+                     char *sv = packr_malloc(vlen + 1);
+                     if (val) memcpy(sv, val, vlen);
+                     sv[vlen]=0;
+                     c->strings[row_count] = sv;
+                     current_batch_size += vlen;
+                } else if (c->type == COL_TYPE_INT || c->type == COL_TYPE_FLOAT || c->type == COL_TYPE_BOOL) {
+                     next_token(p, &val, &vlen);
+                     if (c->type == COL_TYPE_INT && t == J_NUMBER && val) {
                         char tmp[64]; if(vlen>63)vlen=63; memcpy(tmp, val, vlen); tmp[vlen]=0;
                         c->ints[row_count] = (int32_t)strtol(tmp, NULL, 10);
-                    }
-                } else if (c->type == COL_TYPE_FLOAT) {
-                    if (t == J_NUMBER) {
+                     } else if (c->type == COL_TYPE_FLOAT && t == J_NUMBER && val) {
                         char tmp[64]; if(vlen>63)vlen=63; memcpy(tmp, val, vlen); tmp[vlen]=0;
                         c->floats[row_count] = strtod(tmp, NULL);
-                    }
-                } else if (c->type == COL_TYPE_STRING) {
-                    if (t == J_STRING) {
-                         packr_free(c->strings[row_count]); // Free default
-                         char *sv = packr_malloc(vlen + 1);
-                         memcpy(sv, val, vlen); sv[vlen]=0;
-                         c->strings[row_count] = sv;
-                    }
-                } else if (c->type == COL_TYPE_BOOL) {
-                    if (t == J_TRUE) c->bools[row_count] = 1;
-                    else if (t == J_FALSE) c->bools[row_count] = 0;
-                } else if (c->type == COL_TYPE_CUSTOM) {
-                    if (t == J_OBJECT_START || t == J_ARRAY_START) {
-                        packr_free(c->custom_data[row_count]);
-                        c->custom_data[row_count] = consume_json_object(p, &vlen);
-                    } else if (t == J_TRUE || t == J_FALSE || t == J_NUMBER || t == J_STRING) {
-                        // Unexpected scalar in custom column? treating as json blob
-                        // NOT SUPPORTED fully yet, we assume structural consistency
-                        if (t != J_OBJECT_START && t != J_ARRAY_START) next_token(p, &val, &vlen); // consume
-                    }
+                     } else if (c->type == COL_TYPE_BOOL) {
+                        if (t == J_TRUE) c->bools[row_count] = 1;
+                        else if (t == J_FALSE) c->bools[row_count] = 0;
+                     }
+                } else {
+                    skip_json_value(p);
                 }
+            } else {
+                // Unknown field - skip
+                skip_json_value(p);
             }
-            // Ignore extra fields not in discovered schema (unlikely given discovery)
             
             t = peek_token(p);
             if (t == J_COMMA) next_token(p, &s, &sl);
@@ -424,38 +451,107 @@ static int try_encode_ultra_array(jparser_t *p, packr_encoder_t *enc) {
         
         if (!success) break;
         
-        // Inc counts
-        for(int i=0; i<col_count; i++) cols[i].count++;
-        row_count++;
+        if (success) {
+            // Inc counts
+            for(int i=0; i<col_count; i++) cols[i].count++;
+            row_count++;
+
+            // Flush Check
+            if (row_count >= MAX_BATCH_ROWS || current_batch_size >= MAX_BATCH_BYTES) {
+                if (!is_streaming) {
+                    packr_encode_token(enc, TOKEN_ARRAY_STREAM);
+                    is_streaming = 1;
+                }
+                
+                if (packr_encode_ultra_columns(enc, row_count, col_count, fields, cols, 1) != 0) {
+                    success = 0;
+                    break;
+                }
+                
+                // Reset for next batch
+                for(int i=0; i<col_count; i++) {
+                    if (cols[i].type == COL_TYPE_STRING) {
+                         for(int j=0; j<row_count; j++) {
+                             if (cols[i].strings[j]) packr_free(cols[i].strings[j]);
+                             cols[i].strings[j] = NULL;
+                         }
+                    }
+                    else if (cols[i].type == COL_TYPE_CUSTOM) {
+                         for(int j=0; j<row_count; j++) {
+                             if (cols[i].custom_data[j]) {
+                                 printf("FREE_FLUSH %p\n", cols[i].custom_data[j]);
+                                 packr_free(cols[i].custom_data[j]);
+                             }
+                             cols[i].custom_data[j] = NULL;
+                         }
+                    }
+                    
+                    cols[i].count = 0;
+                    if (cols[i].type == COL_TYPE_INT) memset(cols[i].ints, 0, sizeof(int32_t) * scan_rows);
+                    else if (cols[i].type == COL_TYPE_FLOAT) memset(cols[i].floats, 0, sizeof(double) * scan_rows);
+                    else if (cols[i].type == COL_TYPE_BOOL) memset(cols[i].bools, 0, sizeof(uint8_t) * scan_rows);
+                    
+                    memset(cols[i].nulls, 0, scan_rows);
+                }
+                row_count = 0;
+                current_batch_size = 0;
+            }
+        }
+    }
+
+    // Flush remaining
+    if (success && row_count > 0) {
+        if (is_streaming) {
+             if (packr_encode_ultra_columns(enc, row_count, col_count, fields, cols, 1) != 0) success = 0;
+        } else {
+             // Standard Ultra Batch (Single)
+             if (packr_encode_ultra_columns(enc, row_count, col_count, fields, cols, 0) != 0) success = 0; 
+        }
     }
     
-    
-    if (success && row_count > 0) {
-        packr_encode_ultra_columns(enc, row_count, col_count, fields, cols);
+    if (success && is_streaming) {
+        packr_encode_token(enc, TOKEN_ARRAY_END);
     }
     
     // Cleanup
     for(int i=0; i<col_count; i++) {
         packr_free(fields[i]); 
         if (cols[i].type == COL_TYPE_STRING) {
-            for(int j=0; j<cols[i].count; j++) packr_free(cols[i].strings[j]);
+            for(int j=0; j<scan_rows; j++) packr_free(cols[i].strings[j]);
             packr_free(cols[i].strings);
-        } else if (cols[i].type == COL_TYPE_INT) packr_free(cols[i].ints);
-        else if (cols[i].type == COL_TYPE_FLOAT) packr_free(cols[i].floats);
-        else if (cols[i].type == COL_TYPE_BOOL) packr_free(cols[i].bools);
+        } else if (cols[i].type == COL_TYPE_INT) {
+            packr_free(cols[i].ints);
+        }
+        else if (cols[i].type == COL_TYPE_FLOAT) {
+            packr_free(cols[i].floats);
+        }
+        else if (cols[i].type == COL_TYPE_BOOL) {
+            packr_free(cols[i].bools);
+        }
         else if (cols[i].type == COL_TYPE_CUSTOM) {
-             for(int j=0; j<cols[i].count; j++) packr_free(cols[i].custom_data[j]);
+             printf("CLEANUP_CUSTOM i=%d type=%d rows=%d ptr=%p\n", i, cols[i].type, scan_rows, cols[i].custom_data);
+             for(int j=0; j<scan_rows; j++) {
+                 if (cols[i].custom_data[j]) {
+                     printf("FREE_CLEANUP %p\n", cols[i].custom_data[j]);
+                     packr_free(cols[i].custom_data[j]);
+                 }
+             }
              packr_free(cols[i].custom_data);
         }
         packr_free(cols[i].nulls);
     }
     
-    return success ? 0 : -1;
+    if (success) return 0;
+    
+    if (is_streaming) return -1; // Fatal error, cannot rewind
+    return 1; // Soft error, fallback valid
 }
 
 static int encode_array(jparser_t *p, packr_encoder_t *enc) {
     size_t save = p->pos;
-    if (try_encode_ultra_array(p, enc) == 0) return 0;
+    int ret = try_encode_ultra_array(p, enc);
+    if (ret == 0) return 0;
+    if (ret == -1) return -1; // Fatal error
     
     p->pos = save; // Fallback
     

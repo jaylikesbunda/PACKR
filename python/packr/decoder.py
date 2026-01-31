@@ -53,6 +53,10 @@ class ExtendedTokenType:
     CONST_COLUMN = 0xEA
     BITPACK_COLUMN = 0xEB
     RICE_COLUMN = 0xED
+    MFV_COLUMN  = 0xEE
+
+
+    BATCH_PARTIAL = 0xF0
 
 
 class PackrDecoder:
@@ -100,6 +104,8 @@ class PackrDecoder:
                     objects.extend(self._decode_column_batch())
                 elif byte == ExtendedTokenType.ULTRA_BATCH:
                     objects.extend(self._decode_ultra_batch())
+                elif byte == TokenType.BATCH_PARTIAL:
+                     objects.extend(self._decode_ultra_batch())
                 else:
                     objects.append(self._decode_value())
             except (IndexError, ValueError):
@@ -109,7 +115,7 @@ class PackrDecoder:
     
     def _decode_ultra_batch(self) -> List[dict]:
         """Decode ultra-compact batch."""
-        self._read_byte()  # ULTRA_BATCH token
+        self._read_byte()  # Consume ULTRA_BATCH or BATCH_PARTIAL token
         
         record_count = self._read_varint()
         field_count = self._read_varint()
@@ -145,14 +151,18 @@ class PackrDecoder:
 
             # 2. Read Values (Decode potentially dummy-filled stream)
             col_values = []
+            peeked = self._peek_byte()
+            
             if flags & ColumnFlags.CONSTANT:
                 # Single value for all records
-                if self._peek_byte() == TokenType.NULL:
+                if peeked == TokenType.NULL:
                     self._read_byte()
                     val = None
                 else:
                     val = self._decode_value()
                 col_values = [val] * record_count
+            elif peeked == ExtendedTokenType.MFV_COLUMN:
+                col_values = self._decode_mfv_column()
             elif flags & ColumnFlags.ALL_DELTA:
                 # Delta-encoded numeric column
                 col_values = self._decode_numeric_column_packed(record_count)
@@ -186,6 +196,30 @@ class PackrDecoder:
             records.append(record)
         
         return records
+    
+    def _decode_mfv_column(self) -> List[Any]:
+        """Decode MFV (Most Frequent Value) encoded column."""
+        self._read_byte()  # consume MFV_COLUMN
+        count = self._read_varint()
+        
+        mode_value = self._decode_value()
+        
+        byte_count = (count + 7) // 8
+        bitmap_bytes = self._read_bytes(byte_count)
+        
+        is_exception = []
+        for r in range(count):
+            is_exc = (bitmap_bytes[r // 8] >> (r % 8)) & 1
+            is_exception.append(bool(is_exc))
+            
+        values = []
+        for r in range(count):
+            if is_exception[r]:
+                values.append(self._decode_value())
+            else:
+                values.append(mode_value)
+                
+        return values
     
     def _decode_numeric_column_packed(self, count: int) -> List[Any]:
         """Decode delta-encoded numeric column with optional bit-packing or Rice coding."""
@@ -514,9 +548,25 @@ class PackrDecoder:
         if byte == TokenType.ARRAY_START:
             return self._decode_array()
         
+        if byte == TokenType.ARRAY_STREAM:
+            return self._decode_array_stream()
+        
         if byte == TokenType.OBJECT_START:
             return self._decode_object()
+
+        # Handle embedded batches (e.g. from nested arrays/objects optimized as batches)
+        if byte == ExtendedTokenType.RECORD_BATCH:
+            return self._decode_record_batch()
         
+        if byte == ExtendedTokenType.COLUMN_BATCH:
+            return self._decode_column_batch()
+        
+        if byte == ExtendedTokenType.ULTRA_BATCH:
+            return self._decode_ultra_batch()
+            
+        if byte == TokenType.BATCH_PARTIAL:
+            return self._decode_ultra_batch()
+
         raise ValueError(f"Unknown token type: {byte:#x}")
     
     def _track_value(self, value: Any, is_float: bool) -> None:
@@ -551,6 +601,24 @@ class PackrDecoder:
                 break
             items.append(self._decode_value())
         self._read_byte()  # ARRAY_END
+        return items
+    
+    def _decode_array_stream(self) -> List[Any]:
+        items = []
+        while self._offset < len(self._data):
+            byte = self._peek_byte()
+            if byte == TokenType.ARRAY_END:
+                self._read_byte()
+                break
+            
+            if byte == TokenType.BATCH_PARTIAL:
+                 batch = self._decode_ultra_batch()
+                 items.extend(batch)
+            elif byte == ExtendedTokenType.ULTRA_BATCH:
+                 batch = self._decode_ultra_batch()
+                 items.extend(batch)
+            else:
+                 items.append(self._decode_value())
         return items
     
     def _decode_object(self) -> dict:

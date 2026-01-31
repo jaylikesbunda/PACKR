@@ -54,6 +54,14 @@ class TokenType(IntEnum):
     OBJECT_START = 0xDC
     OBJECT_END = 0xDD
 
+    # Streaming Extensions
+    ARRAY_STREAM  = 0xEF
+    BATCH_PARTIAL = 0xF0
+
+    # Extended Column Types
+    MFV_COLUMN = 0xEE
+
+
 
 # Delta small range
 DELTA_SMALL_MIN = -8

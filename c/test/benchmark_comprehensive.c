@@ -54,7 +54,7 @@ static int run_tool_encode(const char *in, const char *out, int compress) {
     
     uint8_t *buffer = malloc(MAX_BUFFER_SIZE);
     packr_encoder_t enc;
-    packr_encoder_init(&enc, buffer, MAX_BUFFER_SIZE);
+    packr_encoder_init(&enc, NULL, NULL, buffer, MAX_BUFFER_SIZE);
     enc.compress = compress;
     
     if (json_encode_to_packr(json, in_size, &enc) != 0) {
@@ -68,6 +68,9 @@ static int run_tool_encode(const char *in, const char *out, int compress) {
     fclose(f);
     
     packr_encoder_destroy(&enc);
+    
+    printf("Debug Peak Alloc: %zu bytes\n", packr_get_peak_alloc());
+    
     free(json); free(buffer);
     return 0;
 }
@@ -105,7 +108,7 @@ static void run_benchmark(const char *name, const char *path) {
     packr_encoder_t enc;
     
     /* Warmup */
-    packr_encoder_init(&enc, buffer, MAX_BUFFER_SIZE);
+    packr_encoder_init(&enc, NULL, NULL, buffer, MAX_BUFFER_SIZE);
     enc.compress = true;
     json_encode_to_packr(json, size, &enc);
     packr_encoder_finish(&enc, buffer);
@@ -116,7 +119,7 @@ static void run_benchmark(const char *name, const char *path) {
     double start = get_time_ms();
     size_t out_size = 0;
     for (int i=0; i<10; i++) {
-        packr_encoder_init(&enc, buffer, MAX_BUFFER_SIZE);
+        packr_encoder_init(&enc, NULL, NULL, buffer, MAX_BUFFER_SIZE);
         enc.compress = true;
         json_encode_to_packr(json, size, &enc);
         out_size = packr_encoder_finish(&enc, buffer);

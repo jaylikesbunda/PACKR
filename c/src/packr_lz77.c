@@ -8,6 +8,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "packr.h"
+#include "packr_platform.h"
 
 // Helper to write safe
 static void out_byte(uint8_t **out, uint8_t *end, uint8_t b) {
@@ -109,7 +110,6 @@ typedef struct {
 size_t packr_lz77_compress(const uint8_t *in, size_t in_len, uint8_t *out, size_t out_cap) {
     if (in_len == 0) return 0;
     
-    
     uint8_t *op = out;
     uint8_t *op_end = out + out_cap;
     
@@ -124,7 +124,6 @@ size_t packr_lz77_compress(const uint8_t *in, size_t in_len, uint8_t *out, size_
     
     lz77_hash_t *ht = calloc(1, sizeof(lz77_hash_t));
     if (!ht) return 0;
-    
     
     size_t ip = 0;
     size_t anchor = 0;
@@ -146,10 +145,8 @@ size_t packr_lz77_compress(const uint8_t *in, size_t in_len, uint8_t *out, size_
             ht->prev[ip % WINDOW_SIZE] = match_pos;
             ht->head[h] = ip;
             
-            
-            int chain_len = 32;
             size_t curr_match = match_pos;
-            
+            int chain_len = 32;
             
              while (curr_match != 0 && chain_len-- > 0) {
                  // Check distance
@@ -258,4 +255,254 @@ size_t packr_lz77_compress(const uint8_t *in, size_t in_len, uint8_t *out, size_
     
     free(ht);
     return out_len;
+}
+
+#define STREAM_WINDOW_SIZE 4096
+#define STREAM_HASH_MASK 0x7FF // 2048 entries
+typedef struct {
+    uint16_t head[2048];
+    uint16_t prev[STREAM_WINDOW_SIZE];
+} lz77_stream_hash_t;
+
+void packr_lz77_init(packr_lz77_stream_t *ctx) {
+    memset(ctx, 0, sizeof(packr_lz77_stream_t));
+    ctx->ht = packr_malloc(sizeof(lz77_stream_hash_t));
+    if (ctx->ht) memset(ctx->ht, 0, sizeof(lz77_stream_hash_t));
+}
+
+void packr_lz77_destroy(packr_lz77_stream_t *ctx) {
+    if (ctx->ht) {
+        packr_free(ctx->ht);
+        ctx->ht = NULL;
+    }
+}
+
+static int flush_out(packr_lz77_stream_t *ctx, packr_flush_func flush_cb, void *user_data, size_t len) {
+    if (len == 0) return 0;
+    return flush_cb(user_data, ctx->out_buf, len);
+}
+
+static void emit_literal(packr_lz77_stream_t *ctx, uint8_t b, packr_flush_func flush_cb, void *user_data, size_t *out_idx) {
+    ctx->out_buf[(*out_idx)++] = b;
+    if (*out_idx >= sizeof(ctx->out_buf)) {
+        flush_out(ctx, flush_cb, user_data, *out_idx);
+        *out_idx = 0;
+    }
+}
+
+static void emit_match(packr_lz77_stream_t *ctx, size_t dist, size_t len, packr_flush_func flush_cb, void *user_data, size_t *out_idx) {
+    // Packr Format
+    size_t lit_len = ctx->process_pos - ctx->anchor;
+    uint8_t lit_nib = (lit_len >= 15) ? 15 : lit_len;
+    uint8_t match_nib = (len - 3 >= 15) ? 15 : (len - 3);
+    
+    emit_literal(ctx, (lit_nib << 4) | match_nib, flush_cb, user_data, out_idx);
+    
+    // Extended lit len
+    if (lit_nib == 15) {
+        size_t rem = lit_len - 15;
+        while (rem >= 255) {
+            emit_literal(ctx, 255, flush_cb, user_data, out_idx);
+            rem -= 255;
+        }
+        emit_literal(ctx, (uint8_t)rem, flush_cb, user_data, out_idx);
+    }
+    
+    // Copy literals from window
+    for (size_t i = 0; i < lit_len; i++) {
+        emit_literal(ctx, ctx->window[ctx->anchor + i], flush_cb, user_data, out_idx);
+    }
+    
+    // Extended match len
+    if (match_nib == 15) {
+        size_t rem = (len - 3) - 15;
+        while (rem >= 255) {
+            emit_literal(ctx, 255, flush_cb, user_data, out_idx);
+            rem -= 255;
+        }
+        emit_literal(ctx, (uint8_t)rem, flush_cb, user_data, out_idx);
+    }
+    
+    // Offset (Little Endian)
+    emit_literal(ctx, dist & 0xFF, flush_cb, user_data, out_idx);
+    emit_literal(ctx, (dist >> 8) & 0xFF, flush_cb, user_data, out_idx);
+}
+
+// Internal window update
+static void slide_window(packr_lz77_stream_t *ctx) {
+    lz77_stream_hash_t *ht = (lz77_stream_hash_t*)ctx->ht;
+    
+    // Move upper half to lower half
+    memcpy(ctx->window, ctx->window + STREAM_WINDOW_SIZE, STREAM_WINDOW_SIZE);
+    ctx->window_pos -= STREAM_WINDOW_SIZE;
+    ctx->process_pos -= STREAM_WINDOW_SIZE;
+    ctx->anchor -= STREAM_WINDOW_SIZE;
+    
+    // Adjust Hash
+    if (ht) {
+        for(int i=0; i<2048; i++) {
+             if (ht->head[i] < STREAM_WINDOW_SIZE) ht->head[i] = 0;
+             else ht->head[i] -= STREAM_WINDOW_SIZE;
+        }
+        for(int i=0; i<STREAM_WINDOW_SIZE; i++) {
+             if (ht->prev[i] < STREAM_WINDOW_SIZE) ht->prev[i] = 0;
+             else ht->prev[i] -= STREAM_WINDOW_SIZE;
+        }
+    }
+}
+
+int packr_lz77_compress_stream(packr_lz77_stream_t *ctx, const uint8_t *in, size_t in_len, 
+                               packr_flush_func flush_cb, void *user_data, int flush) {
+    if (!ctx->ht) return -1;
+    lz77_stream_hash_t *ht = (lz77_stream_hash_t*)ctx->ht;
+    
+    size_t in_processed = 0;
+    size_t out_idx = 0; // Scratchpad index
+    
+    // If we have very little data and no flush, just buffer it
+    if (!flush && (ctx->window_pos + in_len < STREAM_WINDOW_SIZE)) {
+        memcpy(ctx->window + ctx->window_pos, in, in_len);
+        ctx->window_pos += in_len;
+        return 0;
+    }
+
+    while (in_processed < in_len || (flush && ctx->process_pos < ctx->window_pos)) {
+        // 1. Move Data to Window
+        size_t space = sizeof(ctx->window) - ctx->window_pos;
+        
+        // If window is full (or near full), we must slide
+        if (space < 258 && ctx->process_pos >= STREAM_WINDOW_SIZE) {
+             size_t lit_len = ctx->process_pos - ctx->anchor;
+             if (ctx->anchor < STREAM_WINDOW_SIZE) {
+                 if (lit_len > 0) {
+                     uint8_t lit_nib = (lit_len >= 15) ? 15 : lit_len;
+                     uint8_t match_nib = 0; // len=3, but offset=0 triggers skip in custom decoder
+                     
+                     emit_literal(ctx, (lit_nib << 4) | match_nib, flush_cb, user_data, &out_idx);
+                     if (lit_nib == 15) {
+                         size_t rem = lit_len - 15;
+                         while (rem >= 255) { emit_literal(ctx, 255, flush_cb, user_data, &out_idx); rem -= 255; }
+                         emit_literal(ctx, (uint8_t)rem, flush_cb, user_data, &out_idx);
+                     }
+                     // Copy literals
+                     for (size_t i = 0; i < lit_len; i++) {
+                         emit_literal(ctx, ctx->window[ctx->anchor + i], flush_cb, user_data, &out_idx);
+                     }
+                     // Match len dummy
+                     // Offset 0
+                     emit_literal(ctx, 0, flush_cb, user_data, &out_idx);
+                     emit_literal(ctx, 0, flush_cb, user_data, &out_idx);
+                 }
+                 ctx->anchor = ctx->process_pos;
+             }
+        
+             // Now safe to slide
+             slide_window(ctx);
+             space = sizeof(ctx->window) - ctx->window_pos;
+        }
+
+        size_t chunk = (in_len - in_processed);
+        if (chunk > space) chunk = space;
+        if (chunk > 0) {
+            memcpy(ctx->window + ctx->window_pos, in + in_processed, chunk);
+            ctx->window_pos += chunk;
+            in_processed += chunk;
+        }
+        
+        // 2. Compress Loop
+        size_t lookahead_limit = (flush && in_processed == in_len) ? ctx->window_pos : (ctx->window_pos - 3);
+        if (lookahead_limit > sizeof(ctx->window)) lookahead_limit = 0; // underflow protect
+        if (lookahead_limit < ctx->process_pos) lookahead_limit = ctx->process_pos;
+
+        while (ctx->process_pos < lookahead_limit) {
+            uint32_t h = (ctx->window[ctx->process_pos] | (ctx->window[ctx->process_pos+1] << 8) | 
+                         (ctx->window[ctx->process_pos+2] << 16) | (ctx->window[ctx->process_pos+3] << 24));
+            h = (h * 0x1e35a7bd) >> 19; // Tuned for 2048 (11 bits? 32-13=19) -> check mask
+            h &= STREAM_HASH_MASK;
+            
+            size_t match_pos = ht->head[h];
+            ht->prev[ctx->process_pos % STREAM_WINDOW_SIZE] = match_pos; // Store in ring
+            ht->head[h] = ctx->process_pos;
+            
+            size_t best_len = 0;
+            size_t best_off = 0;
+            
+            // Check match
+            if (match_pos > 0 && ctx->process_pos > match_pos) {
+                 size_t dist = ctx->process_pos - match_pos;
+                 if (dist <= STREAM_WINDOW_SIZE) {
+                      // Check actual match
+                      size_t len = 0;
+                      size_t max_len = ctx->window_pos - ctx->process_pos;
+                      if (max_len > 258) max_len = 258;
+                      
+                      while (len < max_len && ctx->window[match_pos + len] == ctx->window[ctx->process_pos + len]) {
+                          len++;
+                      }
+                      
+                      if (len >= 3) {
+                          best_len = len;
+                          best_off = dist;
+                      }
+                 }
+            }
+            
+            if (best_len >= 3) {
+                 emit_match(ctx, best_off, best_len, flush_cb, user_data, &out_idx);
+                 
+                 // Update hashes for matched bytes
+                 for (size_t k = 0; k < best_len; k++) {
+                     if (ctx->process_pos + k + 3 >= ctx->window_pos) break;
+                     uint32_t h2 = (ctx->window[ctx->process_pos+k] | (ctx->window[ctx->process_pos+k+1] << 8) | 
+                                  (ctx->window[ctx->process_pos+k+2] << 16) | (ctx->window[ctx->process_pos+k+3] << 24));
+                     h2 = (h2 * 0x1e35a7bd) >> 19; 
+                     h2 &= STREAM_HASH_MASK;
+                     ht->prev[(ctx->process_pos + k) % STREAM_WINDOW_SIZE] = ht->head[h2]; 
+                     ht->head[h2] = ctx->process_pos + k;
+                 }
+                 
+                 ctx->process_pos += best_len;
+                 ctx->anchor = ctx->process_pos;
+            } else {
+                 ctx->process_pos++;
+            }
+        }
+        
+        if (flush && ctx->process_pos < ctx->window_pos) {
+             // Final flush of literals using Offset=0 dummy match
+             size_t lit_len = ctx->process_pos - ctx->anchor;
+             if (lit_len > 0) {
+                 uint8_t lit_nib = (lit_len >= 15) ? 15 : lit_len;
+                 uint8_t match_nib = 0; // len=3
+                 
+                 emit_literal(ctx, (lit_nib << 4) | match_nib, flush_cb, user_data, &out_idx);
+                 
+                 if (lit_nib == 15) {
+                     size_t rem = lit_len - 15;
+                     while (rem >= 255) { emit_literal(ctx, 255, flush_cb, user_data, &out_idx); rem -= 255; }
+                     emit_literal(ctx, (uint8_t)rem, flush_cb, user_data, &out_idx);
+                 }
+                 
+                 for (size_t i = 0; i < lit_len; i++) {
+                     emit_literal(ctx, ctx->window[ctx->anchor + i], flush_cb, user_data, &out_idx);
+                 }
+                 
+                 // Offset 0
+                 emit_literal(ctx, 0, flush_cb, user_data, &out_idx);
+                 emit_literal(ctx, 0, flush_cb, user_data, &out_idx);
+             }
+             ctx->anchor = ctx->process_pos;
+             ctx->process_pos = ctx->window_pos; 
+        }
+        
+        if (out_idx > 0) {
+            flush_out(ctx, flush_cb, user_data, out_idx);
+            out_idx = 0;
+        }
+        
+        if (in_processed == in_len && !flush) break; // Wait for more data
+        if (flush && in_processed == in_len && ctx->process_pos >= ctx->window_pos) break; // Done
+    }
+    
+    return 0;
 }

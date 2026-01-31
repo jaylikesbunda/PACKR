@@ -30,6 +30,6 @@ typedef struct {
     int (*custom_encoder)(packr_encoder_t *ctx, void *data);
 } packr_column_t;
 
-void packr_encode_ultra_columns(packr_encoder_t *ctx, int row_count, int col_count, char **field_names, packr_column_t *columns);
+int packr_encode_ultra_columns(packr_encoder_t *ctx, int row_count, int col_count, char **field_names, packr_column_t *columns, int partial);
 
 #endif
