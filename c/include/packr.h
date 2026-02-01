@@ -94,9 +94,9 @@ typedef struct {
     
     // Opaque hash table pointer to keep header clean
     void *ht;
-    
+
     // Output scratchpad
-    uint8_t out_buf[256]; 
+    uint8_t out_buf[128];
 } packr_lz77_stream_t;
 
 /* Encoder Context */
@@ -105,14 +105,14 @@ typedef struct {
     size_t capacity;
     size_t pos;
     size_t symbol_count;
-    
+
     packr_dict_t fields;
     packr_dict_t strings;
     packr_dict_t macs;
-    
+
     bool compress;
     size_t total_alloc;
-    
+
     /* Streaming Support */
     packr_flush_func flush_cb;
     void *user_data;

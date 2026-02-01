@@ -112,24 +112,24 @@ static jtoken_type_t next_token(jparser_t *p, char **out_start, size_t *out_len)
     return J_ERROR;
 }
 
-/* Helper to consume an entire JSON object/array string raw */
-static char* consume_json_object(jparser_t *p, size_t *out_len) {
+/* Skip past a JSON object/array without allocating, returns length skipped or 0 on error */
+static size_t skip_json_compound(jparser_t *p) {
     skip_whitespace(p);
     size_t start = p->pos;
-    if (start >= p->len) return NULL;
-    
+    if (start >= p->len) return 0;
+
     char c = p->json[start];
-    if (c != '{' && c != '[') return NULL;
-    
+    if (c != '{' && c != '[') return 0;
+
     int depth = 0;
     int in_quote = 0;
-    
+
     while (p->pos < p->len) {
         char cur = p->json[p->pos];
-        
+
         if (in_quote) {
             if (cur == '\\') {
-                p->pos++; // Skip escaped char
+                p->pos++;
             } else if (cur == '"') {
                 in_quote = 0;
             }
@@ -139,19 +139,27 @@ static char* consume_json_object(jparser_t *p, size_t *out_len) {
             else if (cur == '}' || cur == ']') {
                 depth--;
                 if (depth == 0) {
-                    p->pos++; // Include closing brace
-                    *out_len = p->pos - start;
-                    char *res = packr_malloc(*out_len + 1);
-                    memcpy(res, p->json + start, *out_len);
-                    res[*out_len] = 0;
-                    printf("ALLOC_BLOB %p\n", res);
-                    return res;
+                    p->pos++;
+                    return p->pos - start;
                 }
             }
         }
         p->pos++;
     }
-    return NULL;
+    return 0;
+}
+
+/* Helper to consume an entire JSON object/array string raw (allocating copy) */
+static char* consume_json_object(jparser_t *p, size_t *out_len) {
+    skip_whitespace(p);
+    size_t start = p->pos;
+    size_t skipped = skip_json_compound(p);
+    if (skipped == 0) return NULL;
+    *out_len = skipped;
+    char *res = packr_malloc(skipped + 1);
+    memcpy(res, p->json + start, skipped);
+    res[skipped] = 0;
+    return res;
 }
 
 
@@ -184,13 +192,9 @@ static int encode_object(jparser_t *p, packr_encoder_t *enc) {
     while (1) {
         char *key; size_t klen;
         if (next_token(p, &key, &klen) != J_STRING) return -1;
-        
-        /* Key */
-        char kbuf[256];
-        if (klen >= 256) klen = 255;
-        memcpy(kbuf, key, klen);
-        kbuf[klen] = 0;
-        if (packr_encode_field(enc, kbuf, klen) != 0) return -1;
+
+        /* Key - pass directly into source JSON, no copy needed */
+        if (packr_encode_field(enc, key, klen) != 0) return -1;
         
         if (next_token(p, &d1, &d2) != J_COLON) return -1;
         
@@ -219,10 +223,7 @@ static void skip_json_value(jparser_t *p) {
     char *s; size_t sl;
     jtoken_type_t t = peek_token(p);
     if (t == J_OBJECT_START || t == J_ARRAY_START) {
-        size_t len;
-        char *blob = consume_json_object(p, &len);
-        printf("FREE_DIRECT %p\n", blob);
-        packr_free(blob);
+        skip_json_compound(p);
     } else {
         next_token(p, &s, &sl);
     }
@@ -278,9 +279,7 @@ static int try_encode_ultra_array(jparser_t *p, packr_encoder_t *enc) {
 
             if (t == J_OBJECT_START || t == J_ARRAY_START) {
                 new_type = COL_TYPE_CUSTOM;
-                char *blob = consume_json_object(&scan_p, &vl);
-                printf("FREE_SCAN %p\n", blob);
-                packr_free(blob); // Just scanning, discard data
+                skip_json_compound(&scan_p); // Just scanning, no need to allocate
             } else {
                 t = next_token(&scan_p, &v, &vl); // Consume scalar
                 
@@ -490,11 +489,11 @@ static int try_encode_ultra_array(jparser_t *p, packr_encoder_t *enc) {
                     }
                     
                     cols[i].count = 0;
-                    if (cols[i].type == COL_TYPE_INT) memset(cols[i].ints, 0, sizeof(int32_t) * scan_rows);
-                    else if (cols[i].type == COL_TYPE_FLOAT) memset(cols[i].floats, 0, sizeof(double) * scan_rows);
-                    else if (cols[i].type == COL_TYPE_BOOL) memset(cols[i].bools, 0, sizeof(uint8_t) * scan_rows);
-                    
-                    memset(cols[i].nulls, 0, scan_rows);
+                    if (cols[i].type == COL_TYPE_INT) memset(cols[i].ints, 0, sizeof(int32_t) * row_count);
+                    else if (cols[i].type == COL_TYPE_FLOAT) memset(cols[i].floats, 0, sizeof(double) * row_count);
+                    else if (cols[i].type == COL_TYPE_BOOL) memset(cols[i].bools, 0, sizeof(uint8_t) * row_count);
+
+                    memset(cols[i].nulls, 0, row_count);
                 }
                 row_count = 0;
                 current_batch_size = 0;
@@ -654,26 +653,26 @@ static int encode_value(jparser_t *p, packr_encoder_t *enc) {
         return encode_array(p, enc);
     }
     else if (t == J_STRING) {
-        char buf[256];
-        if (len >= 256) len = 255;
-        memcpy(buf, start, len);
-        buf[len] = 0;
-        
-        if (is_mac_address(buf, len)) {
-            return packr_encode_mac(enc, buf);
+        if (is_mac_address(start, len)) {
+            /* MAC needs null-terminated string for packr_encode_mac */
+            char mac[18];
+            memcpy(mac, start, 17);
+            mac[17] = 0;
+            return packr_encode_mac(enc, mac);
         }
-        return packr_encode_string(enc, buf, len);
+        return packr_encode_string(enc, start, len);
     }
     else if (t == J_NUMBER) {
         /* Check float */
         int is_float = 0;
-        for (size_t i=0; i<len; i++) if (start[i]=='.' || start[i]=='e') is_float = 1;
-        
+        for (size_t i=0; i<len; i++) if (start[i]=='.' || start[i]=='e' || start[i]=='E') is_float = 1;
+
+        /* strtod/strtol need null-terminated input */
         char buf[64];
         if (len >= 64) len = 63;
         memcpy(buf, start, len);
         buf[len] = 0;
-        
+
         if (is_float) {
             double v = strtod(buf, NULL);
             return packr_encode_double(enc, v);

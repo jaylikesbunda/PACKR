@@ -129,7 +129,6 @@ int packr_encode_varint(packr_encoder_t *ctx, uint32_t value) {
     return buffer_append(ctx, buf, i);
 }
 
-/* Dictionary Management */
 static void dict_init(packr_dict_t *dict) {
     memset(dict, 0, sizeof(packr_dict_t));
 }
@@ -137,19 +136,19 @@ static void dict_init(packr_dict_t *dict) {
 static int dict_get_or_add(packr_dict_t *dict, const char *value, size_t len, int *out_index, size_t *alloc_counter) {
     /* Lookup */
     for (int i = 0; i < PACKR_DICT_SIZE; i++) {
-        if (dict->entries[i].value && 
+        if (dict->entries[i].value &&
             dict->entries[i].length == len &&
             memcmp(dict->entries[i].value, value, len) == 0) {
-            
+
             dict->entries[i].last_used = ++dict->usage_counter;
             *out_index = i;
             return 0; /* Found */
         }
     }
-    
+
     /* Add new */
     int index = -1;
-    
+
     /* First pass: find empty slot */
     for (int i = 0; i < PACKR_DICT_SIZE; i++) {
         if (dict->entries[i].value == NULL) {
@@ -157,7 +156,7 @@ static int dict_get_or_add(packr_dict_t *dict, const char *value, size_t len, in
             break;
         }
     }
-    
+
     /* Second pass: find LRU */
     if (index == -1) {
         uint64_t min_usage = UINT64_MAX;
@@ -168,7 +167,7 @@ static int dict_get_or_add(packr_dict_t *dict, const char *value, size_t len, in
             }
         }
     }
-    
+
     /* Replace */
     if (dict->entries[index].value) {
         if (alloc_counter) *alloc_counter -= (dict->entries[index].length + 1);
@@ -180,7 +179,7 @@ static int dict_get_or_add(packr_dict_t *dict, const char *value, size_t len, in
     dict->entries[index].value[len] = '\0';
     dict->entries[index].length = len;
     dict->entries[index].last_used = ++dict->usage_counter;
-    
+
     *out_index = index;
     return 1; /* Added */
 }
@@ -195,12 +194,11 @@ void packr_encoder_init(packr_encoder_t *ctx, bool compress, packr_flush_func fl
     ctx->flush_cb = flush_cb;
     ctx->user_data = user_data;
     ctx->current_crc = 0xFFFFFFFF;
-    
     ctx->total_alloc = sizeof(packr_encoder_t);
     dict_init(&ctx->fields);
     dict_init(&ctx->strings);
     dict_init(&ctx->macs);
-    
+
     if (ctx->flush_cb) {
         /* Streaming Mode: Write Header Immediately */
         if (ctx->compress) {
@@ -314,7 +312,7 @@ int packr_encode_binary(packr_encoder_t *ctx, const uint8_t *data, size_t len) {
 int packr_encode_string(packr_encoder_t *ctx, const char *str, size_t len) {
     int index;
     int is_new = dict_get_or_add(&ctx->strings, str, len, &index, &ctx->total_alloc);
-    
+
     if (is_new) {
         packr_encode_token(ctx, TOKEN_NEW_STRING);
         packr_encode_varint(ctx, (uint32_t)len);
@@ -327,7 +325,7 @@ int packr_encode_string(packr_encoder_t *ctx, const char *str, size_t len) {
 int packr_encode_field(packr_encoder_t *ctx, const char *str, size_t len) {
     int index;
     int is_new = dict_get_or_add(&ctx->fields, str, len, &index, &ctx->total_alloc);
-    
+
     if (is_new) {
         packr_encode_token(ctx, TOKEN_NEW_FIELD);
         packr_encode_varint(ctx, (uint32_t)len);
@@ -340,7 +338,7 @@ int packr_encode_field(packr_encoder_t *ctx, const char *str, size_t len) {
 int packr_encode_mac(packr_encoder_t *ctx, const char *str) {
     int index;
     int is_new = dict_get_or_add(&ctx->macs, str, strlen(str), &index, &ctx->total_alloc);
-    
+
     if (is_new) {
         packr_encode_token(ctx, TOKEN_NEW_MAC);
         
@@ -881,16 +879,18 @@ int packr_decode_next(packr_decoder_t *ctx, char **cursor, char *end) {
         typedef struct {
             double *nums;
             char **strs;
+            char *mode_str; // For MFV sharing
             uint8_t *types;
             uint8_t *validity;
         } col_data_t;
         
         col_data_t *cols = packr_malloc(sizeof(col_data_t) * field_count);
         for(uint32_t i=0; i<field_count; i++) {
-            cols[i].nums = packr_malloc(sizeof(double) * record_count);
-            cols[i].strs = packr_malloc(sizeof(char*) * record_count);
-            cols[i].types = packr_malloc(record_count);
-            cols[i].validity = packr_malloc(record_count);
+            cols[i].nums = (record_count > 0) ? packr_malloc(sizeof(double) * record_count) : NULL;
+            cols[i].strs = (record_count > 0) ? packr_malloc(sizeof(char*) * record_count) : NULL;
+            cols[i].mode_str = NULL;
+            cols[i].types = (record_count > 0) ? packr_malloc(record_count) : NULL;
+            cols[i].validity = (record_count > 0) ? packr_malloc(record_count) : NULL;
             if (cols[i].nums) memset(cols[i].nums, 0, sizeof(double) * record_count);
             if (cols[i].strs) memset(cols[i].strs, 0, sizeof(char*) * record_count);
             if (cols[i].types) memset(cols[i].types, 0, record_count);
@@ -1078,10 +1078,16 @@ int packr_decode_next(packr_decoder_t *ctx, char **cursor, char *end) {
                      uint32_t dcount = decode_varint(ctx, &bytes_read);
                      // Decode Mode String
                      char *old_cursor = *cursor;
-                     packr_decode_next(ctx, cursor, end); 
+                     if (!packr_decode_next(ctx, cursor, end)) {
+                         packr_free(cols); // Emergency
+                         return 0;
+                     }
                      size_t vlen = *cursor - old_cursor;
                      char *mode_str = packr_malloc(vlen + 1);
-                     memcpy(mode_str, old_cursor, vlen); mode_str[vlen] = 0;
+                     if (mode_str) {
+                        memcpy(mode_str, old_cursor, vlen); mode_str[vlen] = 0;
+                        cols[i].mode_str = mode_str; // Save for cleanup
+                     }
                      *cursor = old_cursor; // Reset cursor
                      
                      // Mask
@@ -1090,24 +1096,26 @@ int packr_decode_next(packr_decoder_t *ctx, char **cursor, char *end) {
                      ctx->pos += mask_len;
                      
                      for(uint32_t k=0; k<dcount && j<record_count; k++) {
-                           uint8_t b = ctx->data[mask_start + (k/8)];
+                           uint8_t b = (mask_start + (k/8) < ctx->size) ? ctx->data[mask_start + (k/8)] : 0;
                            if ( (b >> (k%8)) & 1 ) {
                                // Exception
                                char *oc = *cursor;
-                               packr_decode_next(ctx, cursor, end);
-                               size_t elen = *cursor - oc;
-                               char *estr = packr_malloc(elen + 1);
-                               memcpy(estr, oc, elen); estr[elen] = 0;
-                               *cursor = oc;
-                               cols[i].strs[j++] = estr;
+                               if (packr_decode_next(ctx, cursor, end)) {
+                                   size_t elen = *cursor - oc;
+                                   char *estr = packr_malloc(elen + 1);
+                                   if (estr) {
+                                       memcpy(estr, oc, elen); estr[elen] = 0;
+                                   }
+                                   *cursor = oc;
+                                   cols[i].strs[j++] = estr;
+                               } else {
+                                   cols[i].strs[j++] = NULL;
+                               }
                            } else {
-                               size_t ml = strlen(mode_str);
-                               char *s = packr_malloc(ml + 1);
-                               memcpy(s, mode_str, ml+1);
-                               cols[i].strs[j++] = s;
+                               // Mode - Shared pointer
+                               cols[i].strs[j++] = mode_str;
                            }
                      }
-                     packr_free(mode_str);
                 } else {
                     while (j < record_count) {
                         char *old_cursor = *cursor;
@@ -1168,12 +1176,14 @@ int packr_decode_next(packr_decoder_t *ctx, char **cursor, char *end) {
         /* Free memory */
         for(uint32_t i=0; i<field_count; i++) {
             packr_free(field_names[i]);
-            // Need to free shared strings carefully if we want to be perfect
-            // But for benchmark, we can leak a bit or just avoid shared ones for non-constants
-            // For now, let's just free the ones that are NOT constant (constant ones shared same ptr)
+            
             if (!(flags[i] & 0x01)) {
+                // Shared string handling (RLE and MFV)
                 for(uint32_t j=0; j<record_count; j++) {
-                    if (cols[i].strs[j]) {
+                    if (cols[i].strs && cols[i].strs[j]) {
+                        // Skip if it is the shared mode_str (freed separately below)
+                        if (cols[i].strs[j] == cols[i].mode_str) continue;
+                        
                         // Check if it's the same as previous to avoid double free in RLE
                         if (j == 0 || cols[i].strs[j] != cols[i].strs[j-1]) {
                              packr_free(cols[i].strs[j]);
@@ -1181,8 +1191,12 @@ int packr_decode_next(packr_decoder_t *ctx, char **cursor, char *end) {
                     }
                 }
             } else {
-                 packr_free(cols[i].strs[0]);
+                 if (cols[i].strs && record_count > 0) {
+                     packr_free(cols[i].strs[0]); // Constant: all point to same memory
+                 }
             }
+            
+            packr_free(cols[i].mode_str); // Freed once here if it existed
             packr_free(cols[i].nums);
             packr_free(cols[i].strs);
             packr_free(cols[i].types);
