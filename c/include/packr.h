@@ -140,7 +140,7 @@ typedef struct {
 } packr_decoder_t;
 
 /* API */
-void packr_encoder_init(packr_encoder_t *ctx, packr_flush_func flush_cb, void *user_data, uint8_t *work_buffer, size_t work_cap);
+void packr_encoder_init(packr_encoder_t *ctx, bool compress, packr_flush_func flush_cb, void *user_data, uint8_t *work_buffer, size_t work_cap);
 int packr_encode_null(packr_encoder_t *ctx);
 int packr_encode_bool(packr_encoder_t *ctx, bool value);
 int packr_encode_int(packr_encoder_t *ctx, int32_t value);

@@ -72,7 +72,7 @@ class PackrDecoder:
         self._current_field_index: Optional[int] = None
     
     def decode(self, data: bytes) -> Any:
-        data = self._maybe_decompress(data)
+        data, _ = self._maybe_decompress(data)
         frame = self._parser.parse(data)
         self._data = frame.data
         self._offset = 0
@@ -88,30 +88,59 @@ class PackrDecoder:
         
         return self._decode_value()
     
-    def decode_stream(self, data: bytes) -> List[Any]:
-        data = self._maybe_decompress(data)
-        frame = self._parser.parse(data)
-        self._data = frame.data
-        self._offset = 0
-        
-        objects = []
-        while self._offset < len(self._data):
+    def decode_stream(self, data: bytes) -> Tuple[List[Any], int]:
+        """
+        Decode all complete frames from a stream buffer.
+
+        Returns:
+            Tuple of (decoded_objects, total_consumed_bytes)
+        """
+        all_objects = []
+        total_consumed = 0
+        remaining = data
+
+        while len(remaining) > 0:
             try:
-                byte = self._peek_byte()
-                if byte == ExtendedTokenType.RECORD_BATCH:
-                    objects.extend(self._decode_record_batch())
-                elif byte == ExtendedTokenType.COLUMN_BATCH:
-                    objects.extend(self._decode_column_batch())
-                elif byte == ExtendedTokenType.ULTRA_BATCH:
-                    objects.extend(self._decode_ultra_batch())
-                elif byte == TokenType.BATCH_PARTIAL:
-                     objects.extend(self._decode_ultra_batch())
-                else:
-                    objects.append(self._decode_value())
-            except (IndexError, ValueError):
-                break
-        
-        return objects
+                decompressed_data, consumed = self._maybe_decompress(remaining)
+            except (ValueError, IndexError):
+                break  # incomplete or corrupt — stop
+
+            if consumed == 0:
+                # Uncompressed path — data may contain multiple concatenated frames.
+                frames = self._parser.parse_stream(remaining)
+                if not frames:
+                    break  # incomplete frame, need more data
+                frame = frames[0]
+                consumed = len(frame.serialize())
+            else:
+                try:
+                    frame = self._parser.parse(decompressed_data)
+                except (ValueError, IndexError):
+                    break  # incomplete decompressed frame
+
+            self._data = frame.data
+            self._offset = 0
+
+            while self._offset < len(self._data):
+                try:
+                    byte = self._peek_byte()
+                    if byte == ExtendedTokenType.RECORD_BATCH:
+                        all_objects.extend(self._decode_record_batch())
+                    elif byte == ExtendedTokenType.COLUMN_BATCH:
+                        all_objects.extend(self._decode_column_batch())
+                    elif byte == ExtendedTokenType.ULTRA_BATCH:
+                        all_objects.extend(self._decode_ultra_batch())
+                    elif byte == TokenType.BATCH_PARTIAL:
+                         all_objects.extend(self._decode_ultra_batch())
+                    else:
+                        all_objects.append(self._decode_value())
+                except (IndexError, ValueError):
+                    break
+
+            total_consumed += consumed
+            remaining = remaining[consumed:]
+
+        return all_objects, total_consumed
     
     def _decode_ultra_batch(self) -> List[dict]:
         """Decode ultra-compact batch."""
@@ -653,31 +682,36 @@ class PackrDecoder:
         
         raise ValueError(f"Expected field token, got {byte:#x}")
     
-    def _maybe_decompress(self, data: bytes) -> bytes:
-        """Decompress data if it has the compression marker."""
+    def _maybe_decompress(self, data: bytes) -> Tuple[bytes, int]:
+        """
+        Decompress data if it has the compression marker.
+        Returns: (decompressed_data, consumed_input_bytes)
+        """
         while len(data) > 0:
             # Check for Transform flags defined in transform.py
             if data[0] in (0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06):
                 from .transform import decompress_transform
-                data = decompress_transform(data)
-                continue
+                return decompress_transform(data, return_consumed=True)
                 
             if len(data) > 1:
                 if data[0] == 0xFE:
-                    # MTF + Zero-RLE transform (legacy frame-wrapped)
+                    # 0xFE wraps a compress_transform payload (e.g. 0x03 LZ77)
                     from .transform import decompress_transform
-                    data = decompress_transform(data[1:])
-                    continue
+                    inner = data[1:]  # strip 0xFE marker
+                    result = decompress_transform(inner, return_consumed=True)
+                    decompressed, inner_consumed = result
+                    # Total consumed = 1 (0xFE byte) + inner_consumed
+                    return decompressed, 1 + inner_consumed
                 elif data[0] == 0xFF:
                     # Legacy zlib compression
                     import zlib
                     data = zlib.decompress(data[1:])
-                    continue
+                    continue # Peeling zlib
             
             # If no markers match, we are done
             break
             
-        return data
+        return data, 0
     
     def reset(self) -> None:
         self._dicts.reset()
@@ -693,6 +727,6 @@ def decode(data: bytes) -> Any:
     return decoder.decode(data)
 
 
-def decode_stream(data: bytes) -> List[Any]:
+def decode_stream(data: bytes) -> Tuple[List[Any], int]:
     decoder = PackrDecoder()
     return decoder.decode_stream(data)

@@ -396,7 +396,11 @@ static int encode_mfv_column(packr_encoder_t *ctx, packr_column_t *col) {
             int match = 0;
             if (col->type == COL_TYPE_INT) match = (col->ints[i] == candidate_i);
             else if (col->type == COL_TYPE_FLOAT) match = (col->floats[i] == candidate_f);
-            else if (col->type == COL_TYPE_STRING) match = (strcmp(col->strings[i], candidate_s) == 0);
+            else if (col->type == COL_TYPE_STRING) {
+                const char *s1 = col->strings[i] ? col->strings[i] : "";
+                const char *s2 = candidate_s ? candidate_s : "";
+                match = (strcmp(s1, s2) == 0);
+            }
             else if (col->type == COL_TYPE_BOOL) match = (col->bools[i] == candidate_b);
             
             if (match) count++; else count--;
@@ -409,7 +413,11 @@ static int encode_mfv_column(packr_encoder_t *ctx, packr_column_t *col) {
         int match = 0;
         if (col->type == COL_TYPE_INT) match = (col->ints[i] == candidate_i);
         else if (col->type == COL_TYPE_FLOAT) match = (col->floats[i] == candidate_f);
-        else if (col->type == COL_TYPE_STRING) match = (strcmp(col->strings[i], candidate_s) == 0);
+        else if (col->type == COL_TYPE_STRING) {
+            const char *s1 = col->strings[i] ? col->strings[i] : "";
+            const char *s2 = candidate_s ? candidate_s : "";
+            match = (strcmp(s1, s2) == 0);
+        }
         else if (col->type == COL_TYPE_BOOL) match = (col->bools[i] == candidate_b);
         if (match) occurrences++;
     }
@@ -424,7 +432,10 @@ static int encode_mfv_column(packr_encoder_t *ctx, packr_column_t *col) {
     // Write Mode Value
     if (col->type == COL_TYPE_INT) packr_encode_int(ctx, candidate_i);
     else if (col->type == COL_TYPE_FLOAT) packr_encode_double(ctx, candidate_f);
-    else if (col->type == COL_TYPE_STRING) packr_encode_string(ctx, candidate_s, strlen(candidate_s));
+    else if (col->type == COL_TYPE_STRING) {
+        const char *s = candidate_s ? candidate_s : "";
+        packr_encode_string(ctx, s, strlen(s));
+    }
     else if (col->type == COL_TYPE_BOOL) packr_encode_bool(ctx, candidate_b);
     
     // Write Bitmap (1 = Exception, 0 = Mode)
@@ -435,7 +446,11 @@ static int encode_mfv_column(packr_encoder_t *ctx, packr_column_t *col) {
             int match = 0;
             if (col->type == COL_TYPE_INT) match = (col->ints[i+j] == candidate_i);
             else if (col->type == COL_TYPE_FLOAT) match = (col->floats[i+j] == candidate_f);
-            else if (col->type == COL_TYPE_STRING) match = (strcmp(col->strings[i+j], candidate_s) == 0);
+            else if (col->type == COL_TYPE_STRING) {
+                const char *s1 = col->strings[i+j] ? col->strings[i+j] : "";
+                const char *s2 = candidate_s ? candidate_s : "";
+                match = (strcmp(s1, s2) == 0);
+            }
             else if (col->type == COL_TYPE_BOOL) match = (col->bools[i+j] == candidate_b);
             
             if (!match) b |= (1 << j);
@@ -448,13 +463,20 @@ static int encode_mfv_column(packr_encoder_t *ctx, packr_column_t *col) {
         int match = 0;
         if (col->type == COL_TYPE_INT) match = (col->ints[i] == candidate_i);
         else if (col->type == COL_TYPE_FLOAT) match = (col->floats[i] == candidate_f);
-        else if (col->type == COL_TYPE_STRING) match = (strcmp(col->strings[i], candidate_s) == 0);
+        else if (col->type == COL_TYPE_STRING) {
+            const char *s1 = col->strings[i] ? col->strings[i] : "";
+            const char *s2 = candidate_s ? candidate_s : "";
+            match = (strcmp(s1, s2) == 0);
+        }
         else if (col->type == COL_TYPE_BOOL) match = (col->bools[i] == candidate_b);
         
         if (!match) {
             if (col->type == COL_TYPE_INT) packr_encode_int(ctx, col->ints[i]);
             else if (col->type == COL_TYPE_FLOAT) packr_encode_double(ctx, col->floats[i]);
-            else if (col->type == COL_TYPE_STRING) packr_encode_string(ctx, col->strings[i], strlen(col->strings[i]));
+            else if (col->type == COL_TYPE_STRING) {
+                const char *s = col->strings[i] ? col->strings[i] : "";
+                packr_encode_string(ctx, s, strlen(s));
+            }
             else if (col->type == COL_TYPE_BOOL) packr_encode_bool(ctx, col->bools[i]);
         }
     }
@@ -485,8 +507,11 @@ int packr_encode_ultra_columns(packr_encoder_t *ctx, int row_count, int col_coun
              double val = col->floats[0];
              for(size_t j=1; j<col->count; j++) if(col->floats[j] != val) { is_constant = 0; break; }
         } else if (col->type == COL_TYPE_STRING) {
-             char *val = col->strings[0];
-             for(size_t j=1; j<col->count; j++) if(strcmp(col->strings[j], val) != 0) { is_constant = 0; break; }
+             char *val = col->strings[0] ? col->strings[0] : "";
+             for(size_t j=1; j<col->count; j++) {
+                 const char *v2 = col->strings[j] ? col->strings[j] : "";
+                 if(strcmp(v2, val) != 0) { is_constant = 0; break; }
+             }
         } else if (col->type == COL_TYPE_BOOL) {
              uint8_t val = col->bools[0];
              for(size_t j=1; j<col->count; j++) if(col->bools[j] != val) { is_constant = 0; break; }
@@ -529,6 +554,7 @@ int packr_encode_ultra_columns(packr_encoder_t *ctx, int row_count, int col_coun
     
     for (int i=0; i<col_count; i++) {
         packr_column_t *col = &columns[i];
+
         
         // Check for nulls (Recalculate to match flags)
         int has_nulls = 0;
@@ -598,20 +624,26 @@ int packr_encode_ultra_columns(packr_encoder_t *ctx, int row_count, int col_coun
              }
         }
         else if (col->type == COL_TYPE_STRING) {
-            char *val = col->strings[0];
-            for(size_t j=1; j<col->count; j++) if(strcmp(col->strings[j], val) != 0) { is_constant = 0; break; }
+            char *val = col->strings[0] ? col->strings[0] : "";
+            for(size_t j=1; j<col->count; j++) {
+                const char *v2 = col->strings[j] ? col->strings[j] : "";
+                if(strcmp(v2, val) != 0) { is_constant = 0; break; }
+            }
             
             if (is_constant) {
                 packr_encode_string(ctx, val, strlen(val));
              } else {
-                 if (encode_mfv_column(ctx, col)) {
+                 int mfv = encode_mfv_column(ctx, col);
+                 if (mfv) {
                  } else {
                     // RLE
                     size_t j = 0;
                     while (j < col->count) {
-                        char *curr = col->strings[j];
+                        char *curr = col->strings[j] ? col->strings[j] : "";
                         size_t run = 1;
-                        while (j + run < col->count && strcmp(col->strings[j+run], curr) == 0) {
+                        while (j + run < col->count) {
+                            const char *next = col->strings[j+run] ? col->strings[j+run] : "";
+                            if (strcmp(next, curr) != 0) break;
                             run++;
                         }
                         

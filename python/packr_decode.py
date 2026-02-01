@@ -31,7 +31,7 @@ def decode_file(input_path: str, output_path: str, pretty: bool = False) -> None
     
     # Try to decode as stream first, fall back to single object
     try:
-        data = decoder.decode_stream(compressed)
+        data, _ = decoder.decode_stream(compressed)
         if len(data) == 1:
             data = data[0]
     except Exception:
@@ -57,7 +57,7 @@ def decode_stream(pretty: bool = False) -> None:
     compressed = sys.stdin.buffer.read()
     
     decoder = PackrDecoder()
-    data = decoder.decode_stream(compressed)
+    data, _ = decoder.decode_stream(compressed)
     
     if pretty:
         print(json.dumps(data, indent=2))

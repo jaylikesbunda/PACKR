@@ -10,7 +10,7 @@ Transforms:
 3. Delta on sorted runs - For numeric-heavy data
 """
 
-from typing import Tuple
+from typing import Tuple, Any, List
 
 
 def mtf_encode(data: bytes) -> bytes:
@@ -529,15 +529,16 @@ def lz_compress(data: bytes, min_match: int = 3, max_offset: int = 8191, fast_mo
         return b'\x00' + len(data).to_bytes(4, 'little') + data
 
 
-def lz_decompress(data: bytes) -> bytes:
+def lz_decompress(data: bytes, return_consumed: bool = False) -> Any:
     """
     Decompress LZ77-style compressed data.
 
     Args:
         data: LZ-compressed bytes
+        return_consumed: If True, returns (data, consumed_bytes)
 
     Returns:
-        Original bytes
+        Original bytes (or tuple if return_consumed=True)
     """
     if len(data) < 5:
         raise ValueError("LZ data too short")
@@ -547,6 +548,8 @@ def lz_decompress(data: bytes) -> bytes:
 
     if fmt == 0x00:
         # Uncompressed
+        if return_consumed:
+            return data[5:5+orig_len], 5+orig_len
         return data[5:5+orig_len]
 
     if fmt != 0x02:
@@ -601,6 +604,8 @@ def lz_decompress(data: bytes) -> bytes:
         for i in range(match_len):
             output.append(output[start + i])
 
+    if return_consumed:
+        return bytes(output[:orig_len]), pos
     return bytes(output[:orig_len])
 
 
@@ -719,15 +724,16 @@ def huffman_compress(data: bytes) -> bytes:
     return bytes(output)
 
 
-def huffman_decompress(data: bytes) -> bytes:
+def huffman_decompress(data: bytes, return_consumed: bool = False) -> Any:
     """
     Decompress Huffman-compressed data.
 
     Args:
         data: Huffman-compressed bytes
+        return_consumed: If True, returns (data, consumed_bytes)
 
     Returns:
-        Original bytes
+        Original bytes (or tuple if return_consumed=True)
     """
     if len(data) < 5:
         raise ValueError("Huffman data too short")
@@ -743,6 +749,8 @@ def huffman_decompress(data: bytes) -> bytes:
     if marker == 0x02:
         # Single symbol repeated
         sym = data[5]
+        if return_consumed:
+            return bytes([sym] * orig_len), 6
         return bytes([sym] * orig_len)
 
     if marker != 0x01:
@@ -815,6 +823,8 @@ def huffman_decompress(data: bytes) -> bytes:
         if not found:
             break
 
+    if return_consumed:
+        return bytes(output[:orig_len]), data_pos
     return bytes(output[:orig_len])
 
 
@@ -852,15 +862,16 @@ def compress_transform(data: bytes, fast_lz: bool = True) -> bytes:
         return b'\x00' + len(data).to_bytes(4, 'little') + data
 
 
-def decompress_transform(data: bytes) -> bytes:
+def decompress_transform(data: bytes, return_consumed: bool = False) -> Any:
     """
     Reverse compression transform.
 
     Args:
         data: Transformed data with header
+        return_consumed: If True, returns (data, consumed_bytes)
 
     Returns:
-        Original PACKR frame data
+        Original PACKR frame data (or tuple if return_consumed=True)
     """
     if len(data) < 2:
         raise ValueError("Transform data too short")
@@ -872,6 +883,8 @@ def decompress_transform(data: bytes) -> bytes:
         if len(data) < 5:
             raise ValueError("Transform data too short")
         orig_len = int.from_bytes(data[1:5], 'little')
+        if return_consumed:
+            return data[5:5+orig_len], 5+orig_len
         return data[5:5+orig_len]
     elif flags == 0x01:
         # MTF + Zero-RLE (legacy)
@@ -881,21 +894,52 @@ def decompress_transform(data: bytes) -> bytes:
         payload = data[5:]
         rle_decoded = zero_rle_decode(payload)
         mtf_decoded = mtf_decode(rle_decoded)
+        rle_decoded = zero_rle_decode(payload)
+        mtf_decoded = mtf_decode(rle_decoded)
+        # Note: consumed calculation for legacy 0x01 is hard without analyzing rle decode
+        # Assuming it consumes everything passed if untracked, or we just say len(data)?
+        # Ideally we don't support streaming with legacy format efficiently or we need to update rle too.
+        # For now, let's assume it consumes the whole frame if we can't tell easily, 
+        # BUT this is legacy frame-wrapped so the length is known?
+        # Actually payload is rest of data.
+        # Let's just return len(data) for safety on legacy unless we dig deeper.
+        if return_consumed:
+            return mtf_decoded[:orig_len], len(data) 
         return mtf_decoded[:orig_len]
     elif flags == 0x03:
         # LZ77 only
-        return lz_decompress(data[1:])
+        result = lz_decompress(data[1:], return_consumed=return_consumed)
+        if return_consumed:
+            return result[0], result[1] + 1
+        return result
     elif flags == 0x04:
         # Huffman only
-        return huffman_decompress(data[1:])
+        result = huffman_decompress(data[1:], return_consumed=return_consumed)
+        if return_consumed:
+            return result[0], result[1] + 1
+        return result
     elif flags == 0x05:
         # LZ77 + Huffman (decompress Huffman first, then LZ)
-        lz_data = huffman_decompress(data[1:])
-        return lz_decompress(lz_data)
+        # Huffman is the outer container
+        huff_result = huffman_decompress(data[1:], return_consumed=return_consumed)
+        
+        if return_consumed:
+            lz_data, consumed = huff_result
+            return lz_decompress(lz_data, return_consumed=False), consumed + 1
+        else:
+            lz_data = huff_result
+            return lz_decompress(lz_data)
     elif flags == 0x06:
         # Huffman + LZ (decompress LZ first, then Huffman)
-        huff_data = lz_decompress(data[1:])
-        return huffman_decompress(huff_data)
+        # LZ is the outer container
+        lz_result = lz_decompress(data[1:], return_consumed=return_consumed)
+        
+        if return_consumed:
+            huff_data, consumed = lz_result
+            return huffman_decompress(huff_data, return_consumed=False), consumed + 1
+        else:
+            huff_data = lz_result
+            return huffman_decompress(huff_data)
     else:
         raise ValueError(f"Unknown transform flags: {flags:#x}")
 

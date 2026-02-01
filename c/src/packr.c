@@ -187,8 +187,9 @@ static int dict_get_or_add(packr_dict_t *dict, const char *value, size_t len, in
 
 /* Encoder */
 
-void packr_encoder_init(packr_encoder_t *ctx, packr_flush_func flush_cb, void *user_data, uint8_t *work_buffer, size_t work_cap) {
+void packr_encoder_init(packr_encoder_t *ctx, bool compress, packr_flush_func flush_cb, void *user_data, uint8_t *work_buffer, size_t work_cap) {
     memset(ctx, 0, sizeof(packr_encoder_t));
+    ctx->compress = compress;
     ctx->buffer = work_buffer;
     ctx->capacity = work_cap;
     ctx->flush_cb = flush_cb;
@@ -379,8 +380,10 @@ static int packr_flush_buffer(packr_encoder_t *ctx) {
         // Streaming
         if (ctx->compress) {
             // Push via LZ77
-            return packr_lz77_compress_stream(&ctx->lz77, ctx->buffer, ctx->pos, 
+            int ret = packr_lz77_compress_stream(&ctx->lz77, ctx->buffer, ctx->pos, 
                                               ctx->flush_cb, ctx->user_data, 0); // Flush=0 (accumulate)
+            if (ret != 0) return ret;
+            // Success - Fall through to reset pos
         } else {
              int ret = ctx->flush_cb(ctx->user_data, ctx->buffer, ctx->pos);
              if (ret != 0) return ret;

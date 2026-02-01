@@ -7,6 +7,7 @@
 #include <stddef.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include "packr.h"
 #include "packr_platform.h"
 
@@ -326,6 +327,7 @@ void packr_lz77_destroy(packr_lz77_stream_t *ctx) {
 
 static int flush_out(packr_lz77_stream_t *ctx, packr_flush_func flush_cb, void *user_data, size_t len) {
     if (len == 0) return 0;
+    // fprintf(stderr, "LZ77: Flushing %zu bytes to callback\n", len);
     return flush_cb(user_data, ctx->out_buf, len);
 }
 
@@ -400,7 +402,10 @@ static void slide_window(packr_lz77_stream_t *ctx) {
 
 int packr_lz77_compress_stream(packr_lz77_stream_t *ctx, const uint8_t *in, size_t in_len, 
                                packr_flush_func flush_cb, void *user_data, int flush) {
-    if (!ctx->ht) return -1;
+    if (!ctx->ht) {
+        fprintf(stderr, "LZ77: Error - Hash table not initialized\n");
+        return -1;
+    }
     lz77_stream_hash_t *ht = (lz77_stream_hash_t*)ctx->ht;
     
     size_t in_processed = 0;
@@ -410,10 +415,18 @@ int packr_lz77_compress_stream(packr_lz77_stream_t *ctx, const uint8_t *in, size
     if (!flush && (ctx->window_pos + in_len < STREAM_WINDOW_SIZE)) {
         memcpy(ctx->window + ctx->window_pos, in, in_len);
         ctx->window_pos += in_len;
+        // fprintf(stderr, "LZ77: Buffered small chunk, new window_pos=%u\n", ctx->window_pos);
         return 0;
     }
 
+    size_t loops = 0;
     while (in_processed < in_len || (flush && ctx->process_pos < ctx->window_pos)) {
+        loops++;
+        if (loops > 20000000) {
+            fprintf(stderr, "LZ77: FATAL Loop! in_proc=%zu/%zu flush=%d w_pos=%u p_pos=%u\n",
+                    in_processed, in_len, flush, ctx->window_pos, ctx->process_pos);
+            return -1;
+        }
         // 1. Move Data to Window
         size_t space = sizeof(ctx->window) - ctx->window_pos;
         

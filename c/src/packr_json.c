@@ -377,8 +377,7 @@ static int try_encode_ultra_array(jparser_t *p, packr_encoder_t *enc) {
         // Init row defaults for Strings (others memset to 0)
         for(int i=0; i<col_count; i++) {
             if (cols[i].type == COL_TYPE_STRING) {
-                cols[i].strings[row_count] = packr_malloc(1);
-                cols[i].strings[row_count][0] = 0; // Empty string default
+                cols[i].strings[row_count] = NULL; // Use NULL for empty/default
             }
         }
         
@@ -455,6 +454,10 @@ static int try_encode_ultra_array(jparser_t *p, packr_encoder_t *enc) {
             // Inc counts
             for(int i=0; i<col_count; i++) cols[i].count++;
             row_count++;
+            
+            static int total_debug = 0;
+            total_debug++;
+            if (total_debug % 100 == 0) fprintf(stderr, "JSON Row %d\n", total_debug);
 
             // Flush Check
             if (row_count >= MAX_BATCH_ROWS || current_batch_size >= MAX_BATCH_BYTES) {
@@ -550,9 +553,13 @@ static int try_encode_ultra_array(jparser_t *p, packr_encoder_t *enc) {
 static int encode_array(jparser_t *p, packr_encoder_t *enc) {
     size_t save = p->pos;
     int ret = try_encode_ultra_array(p, enc);
-    if (ret == 0) return 0;
+    if (ret == 0) {
+        fprintf(stderr, "PACKR: Successfully encoded using Ultra Batch Streaming\n");
+        return 0;
+    }
     if (ret == -1) return -1; // Fatal error
     
+    fprintf(stderr, "PACKR: Ultra Batch failed (ret=%d), falling back to Recursive Array\n", ret);
     p->pos = save; // Fallback
     
     /* Count elements */
