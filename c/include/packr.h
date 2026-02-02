@@ -45,6 +45,8 @@ typedef enum {
     
     TOKEN_DOUBLE        = 0xDE,
     TOKEN_BINARY        = 0xDF,
+    TOKEN_BINARY_BITPACKED_1B = 0xF4, /* bitpacked 0/1 values */
+    TOKEN_BINARY_BITPACKED_2B = 0xF5, /* bitpacked 0..3 values */
 
     /* Extended Tokens */
     TOKEN_SCHEMA_DEF    = 0xE0,

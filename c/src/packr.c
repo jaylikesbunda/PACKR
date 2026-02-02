@@ -304,6 +304,57 @@ int packr_encode_double(packr_encoder_t *ctx, double value) {
 }
 
 int packr_encode_binary(packr_encoder_t *ctx, const uint8_t *data, size_t len) {
+    int all01 = 1, all03 = 1;
+    for (size_t i = 0; i < len; i++) {
+        if (data[i] > 1) all01 = 0;
+        if (data[i] > 3) { all03 = 0; break; }
+    }
+
+    /* 1-bit packing for 0/1 payloads */
+    if (all01) {
+        size_t packed_len = (len + 7) / 8;
+        if (packed_len + 2 < len) { /* ensure win over raw */
+            packr_encode_token(ctx, TOKEN_BINARY_BITPACKED_1B);
+            packr_encode_varint(ctx, (uint32_t)len); /* original element count */
+            uint8_t byte = 0; int bit = 0;
+            for (size_t i = 0; i < len; i++) {
+                byte |= (uint8_t)(data[i] & 1) << bit;
+                bit++;
+                if (bit == 8) {
+                    if (buffer_append(ctx, &byte, 1) != 0) return -1;
+                    byte = 0; bit = 0;
+                }
+            }
+            if (bit > 0) {
+                if (buffer_append(ctx, &byte, 1) != 0) return -1;
+            }
+            return 0;
+        }
+    }
+
+    /* 2-bit packing for 0..3 payloads */
+    if (all03) {
+        size_t packed_len = (len + 3) / 4;
+        if (packed_len + 2 < len) {
+            packr_encode_token(ctx, TOKEN_BINARY_BITPACKED_2B);
+            packr_encode_varint(ctx, (uint32_t)len);
+            uint8_t byte = 0; int shift = 0;
+            for (size_t i = 0; i < len; i++) {
+                byte |= (uint8_t)(data[i] & 0x03) << shift;
+                shift += 2;
+                if (shift == 8) {
+                    if (buffer_append(ctx, &byte, 1) != 0) return -1;
+                    byte = 0; shift = 0;
+                }
+            }
+            if (shift > 0) {
+                if (buffer_append(ctx, &byte, 1) != 0) return -1;
+            }
+            return 0;
+        }
+    }
+
+    /* Fallback: raw binary */
     packr_encode_token(ctx, TOKEN_BINARY);
     packr_encode_varint(ctx, (uint32_t)len);
     return buffer_append(ctx, data, len);
@@ -678,16 +729,23 @@ int packr_decode_next(packr_decoder_t *ctx, char **cursor, char *end) {
         snprintf(temp, sizeof(temp), "%.17g", val);
         buf_append_str(cursor, end, temp);
     }
-    else if (token == TOKEN_BINARY) {
+    else if (token == TOKEN_BINARY || token == TOKEN_BINARY_BITPACKED_1B || token == TOKEN_BINARY_BITPACKED_2B) {
         int bytes;
         uint32_t len = decode_varint(ctx, &bytes);
-        if (ctx->pos + len > ctx->size) return 0;
+        size_t packed_len = len;
+
+        if (token == TOKEN_BINARY_BITPACKED_1B) {
+            packed_len = (len + 7) / 8;
+        } else if (token == TOKEN_BINARY_BITPACKED_2B) {
+            packed_len = (len + 3) / 4;
+        }
+
+        if (ctx->pos + packed_len > ctx->size) return 0;
+        ctx->pos += packed_len;
         
-        // Skip data
-        ctx->pos += len;
-        
-        char msg[64];
-        snprintf(msg, sizeof(msg), "\"<binary data len=%u>\"", (unsigned int)len);
+        char msg[80];
+        if (token == TOKEN_BINARY) snprintf(msg, sizeof(msg), "\"<binary data len=%u>\"", (unsigned int)len);
+        else snprintf(msg, sizeof(msg), "\"<binary data len=%u bitpacked>\"", (unsigned int)len);
         buf_append_str(cursor, end, msg);
     }
     else if (token == TOKEN_INT || token == TOKEN_DELTA_LARGE || (token >= 0xC3 && token <= 0xD2) || 
