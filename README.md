@@ -1,4 +1,6 @@
-# PACKR
+# <img width="750" height="355" alt="landscape-black-bg" src="https://github.com/user-attachments/assets/43b84859-2174-4184-a69c-829bfb8d785a" />
+
+
 
 Structure-aware JSON compression for embedded systems.
 
