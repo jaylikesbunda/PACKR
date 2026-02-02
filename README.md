@@ -4,7 +4,7 @@ Structure-aware JSON compression for embedded systems.
 
 PACKR is a pure C, dependency-free lossless compressor that tokenizes JSON structure to deduplicate keys and values. It is optimised to run with a minimal memory footprint (<32KB), and targets MCU-class devices like ESP32 and STM32.
 
-Web demo: [https://pack-r.netlify.app/](https://pack-r.netlify.app/)
+WASM Web demo: [https://pack-r.netlify.app/](https://pack-r.netlify.app/)
 
 ## Why PACKR?
 
